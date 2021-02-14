@@ -1,0 +1,8 @@
+.qmake.stash
+Makefile
+build-*/
+*.o
+moc_predefs.h
+target_wrapper.sh
+tstespchrono
+*.moc
