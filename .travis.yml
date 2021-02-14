@@ -1,0 +1,35 @@
+language: cpp
+os: linux
+dist: focal
+sudo: false
+compiler:
+  - gcc
+
+addons:
+  apt:
+    update: true
+    packages:
+      - "ca-certificates"
+      - "libqt5core5a"
+      - "libqt5gui5"
+      - "libqt5network5"
+      - "libqt5multimedia5"
+      - "libqt5sql5"
+      - "libqt5sql5-mysql"
+      - "libqt5sql5-sqlite"
+      - "libqt5serialport5"
+      - "git-core"
+      - "g++"
+      - "make"
+      - "cmake"
+      - "qt5-default"
+      - "qtmultimedia5-dev"
+      - "qttools5-dev"
+      - "qttools5-dev-tools"
+      - "libqt5serialport5-dev"
+      - "libqt5charts5-dev"
+
+script:
+  - "qmake CLONE_CPPUTILS=1 CLONE_DATE=1 test/tstespchrono.pro"
+  - "make -j2"
+  - ./tstespchrono
