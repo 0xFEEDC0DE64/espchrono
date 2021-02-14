@@ -1,0 +1,375 @@
+#include <QtTest>
+#include <QDebug>
+#include <QByteArray>
+
+#include <chrono>
+#include <string>
+
+#include "espchronotestutils.h"
+#include "espchrono.h"
+
+using namespace std::chrono_literals;
+using namespace std::string_literals;
+using namespace date;
+using QTest::toString;
+
+class TstEspChrono : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void test_dateTimeUtcToString_data()
+    {
+        QTest::addColumn<espchrono::DateTime>("dateTime");
+        QTest::addColumn<std::string>("expected");
+
+        QTest::addRow("monday") << espchrono::DateTime{
+                                    10_d/October/2020,
+                                    .hour=10,
+                                    .minute=20,
+                                    .second=30,
+                                    .dayOfWeek=espchrono::DateTime::DayOfWeek::Monday
+                                   } << "2020-10-10T10:20:30"s;
+
+        QTest::addRow("tuesday") << espchrono::DateTime{
+                                    10_d/October/2020,
+                                    .hour=10,
+                                    .minute=20,
+                                    .second=30,
+                                    .dayOfWeek=espchrono::DateTime::DayOfWeek::Tuesday
+                                   } << "2020-10-10T10:20:30"s;
+
+        QTest::addRow("wednesday") << espchrono::DateTime{
+                                    10_d/October/2020,
+                                    .hour=10,
+                                    .minute=20,
+                                    .second=30,
+                                    .dayOfWeek=espchrono::DateTime::DayOfWeek::Wednesday
+                                   } << "2020-10-10T10:20:30"s;
+
+        QTest::addRow("thursday") << espchrono::DateTime{
+                                    10_d/October/2020,
+                                    .hour=10,
+                                    .minute=20,
+                                    .second=30,
+                                    .dayOfWeek=espchrono::DateTime::DayOfWeek::Thursday
+                                   } << "2020-10-10T10:20:30"s;
+
+        QTest::addRow("friday") << espchrono::DateTime{
+                                    10_d/October/2020,
+                                    .hour=10,
+                                    .minute=20,
+                                    .second=30,
+                                    .dayOfWeek=espchrono::DateTime::DayOfWeek::Friday
+                                   } << "2020-10-10T10:20:30"s;
+
+        QTest::addRow("aturday") << espchrono::DateTime{
+                                    10_d/October/2020,
+                                    .hour=10,
+                                    .minute=20,
+                                    .second=30,
+                                    .dayOfWeek=espchrono::DateTime::DayOfWeek::Saturday
+                                   } << "2020-10-10T10:20:30"s;
+
+        QTest::addRow("unday") << espchrono::DateTime{
+                                    10_d/October/2020,
+                                    .hour=10,
+                                    .minute=20,
+                                    .second=30,
+                                    .dayOfWeek=espchrono::DateTime::DayOfWeek::Sunday
+                                   } << "2020-10-10T10:20:30"s;
+
+        QTest::addRow("leading_zeros") << espchrono::DateTime{
+                                           1_d/January/2020,
+                                           .hour=1,
+                                           .minute=2,
+                                           .second=3,
+                                           .dayOfWeek=espchrono::DateTime::DayOfWeek::Monday
+                                          } << "2020-01-01T01:02:03"s;
+    }
+
+    void test_dateTimeUtcToString()
+    {
+        QFETCH(espchrono::DateTime, dateTime);
+        QFETCH(std::string, expected);
+
+        FIXEDCOMPARE(espchrono::toString(dateTime), expected);
+    }
+
+    void test_dateTimeLocalToString_data()
+    {
+        QTest::addColumn<espchrono::LocalDateTime>("dateTime");
+        QTest::addColumn<std::string>("expected");
+
+        QTest::addRow("leading_zeros") << espchrono::LocalDateTime{
+                                           espchrono::DateTime {
+                                               1_d/January/2020,
+                                               .hour = 1,
+                                               .minute = 2,
+                                               .second = 3,
+                                               .dayOfWeek = espchrono::DateTime::DayOfWeek::Monday,
+                                           },
+                                           .timezone = testTimeZone,
+                                           .dst = false
+                                          } << "2020-01-01T01:02:03 +01:00"s;
+
+        QTest::addRow("leading_zeros_dst") << espchrono::LocalDateTime{
+                                               espchrono::DateTime {
+                                                   1_d/January/2020,
+                                                   .hour = 1,
+                                                   .minute = 2,
+                                                   .second = 3,
+                                                   .dayOfWeek = espchrono::DateTime::DayOfWeek::Monday,
+                                               },
+                                               .timezone = testTimeZone,
+                                               .dst = true
+                                              } << "2020-01-01T01:02:03 +02:00"s;
+    }
+
+    void test_dateTimeLocalToString()
+    {
+        QFETCH(espchrono::LocalDateTime, dateTime);
+        QFETCH(std::string, expected);
+
+        FIXEDCOMPARE(espchrono::toString(dateTime), expected);
+    }
+
+    void test_toDateTimeUtc_data()
+    {
+        QTest::addColumn<espchrono::utc_clock::time_point>("time_point");
+        QTest::addColumn<espchrono::DateTime>("expected");
+
+        QTest::addRow("random") << espchrono::utc_clock::time_point{espchrono::seconds{123456}} << espchrono::DateTime{
+                                    2_d/January/1970,
+                                    .hour=10, .minute=17, .second=36,
+                                    .dayOfWeek=espchrono::DateTime::DayOfWeek::Friday
+                                   };
+
+        QTest::addRow("leap_year") << espchrono::utc_clock::time_point{espchrono::seconds{1582934400}}
+                                   << espchrono::DateTime{
+                                       29_d/February/2020,
+                                       .hour=0, .minute=0, .second=0,
+                                       .dayOfWeek=espchrono::DateTime::DayOfWeek::Saturday
+                                      };
+
+        QTest::addRow("normal_year") << espchrono::utc_clock::time_point{espchrono::seconds{1614556800}}
+                                     << espchrono::DateTime{
+                                         1_d/March/2021,
+                                         .hour=0, .minute=0, .second=0,
+                                         .dayOfWeek=espchrono::DateTime::DayOfWeek::Monday
+                                        };
+    }
+
+    void test_toDateTimeUtc()
+    {
+        QFETCH(espchrono::utc_clock::time_point, time_point);
+        QFETCH(espchrono::DateTime, expected);
+
+        FIXEDCOMPARE(espchrono::toDateTime(time_point), expected);
+    }
+
+    void test_toDateTimeLocal_data()
+    {
+        QTest::addColumn<espchrono::local_clock::time_point>("time_point");
+        QTest::addColumn<espchrono::LocalDateTime>("expected");
+
+        QTest::addRow("no_dst") << espchrono::local_clock::time_point(espchrono::seconds{123456}, testTimeZone, false)
+                                << espchrono::LocalDateTime{
+                                    espchrono::DateTime{
+                                     2_d/January/1970,
+                                     .hour=10, .minute=17, .second=36,
+                                     .dayOfWeek=espchrono::DateTime::DayOfWeek::Friday
+                                    },
+                                    .timezone = testTimeZone,
+                                    .dst = false
+                                   };
+        QTest::addRow("with_dst") << espchrono::local_clock::time_point(espchrono::seconds{123456}, testTimeZone, true)
+                                  << espchrono::LocalDateTime{
+                                      espchrono::DateTime{
+                                       2_d/January/1970,
+                                       .hour=10, .minute=17, .second=36,
+                                       .dayOfWeek=espchrono::DateTime::DayOfWeek::Friday
+                                      },
+                                      .timezone = testTimeZone,
+                                      .dst = true
+                                     };
+    }
+
+    void test_toDateTimeLocal()
+    {
+        QFETCH(espchrono::local_clock::time_point, time_point);
+        QFETCH(espchrono::LocalDateTime, expected);
+
+        FIXEDCOMPARE(espchrono::toDateTime(time_point), expected);
+    }
+
+    void test_toDaypointString_data()
+    {
+        QTest::addColumn<espchrono::seconds>("input");
+        QTest::addColumn<std::string>("expected");
+
+        QTest::addRow("00:00:00") << espchrono::seconds{}                << "00:00:00"s;
+        QTest::addRow("05:00:00") << espchrono::seconds{5h}              << "05:00:00"s;
+        QTest::addRow("05:04:00") << espchrono::seconds{5h+4min}         << "05:04:00"s;
+        QTest::addRow("05:04:03") << espchrono::seconds{5h+4min+3s}      << "05:04:03"s;
+        QTest::addRow("05:00:03") << espchrono::seconds{5h+3s}           << "05:00:03"s;
+        QTest::addRow("23:59:59") << espchrono::seconds{23h+59min+59s}   << "23:59:59"s;
+        QTest::addRow("-23:59:59") << espchrono::seconds{-23h-59min-59s} << "-23:59:59"s;
+        QTest::addRow("-00:59:59") << espchrono::seconds{-59min-59s}     << "-00:59:59"s;
+    }
+
+    void test_toDaypointString()
+    {
+        QFETCH(espchrono::seconds, input);
+        QFETCH(std::string, expected);
+        FIXEDCOMPARE(espchrono::toDaypointString(input), expected);
+    }
+
+    void test_parseDaypoint_data()
+    {
+        QTest::addColumn<std::string>("input");
+        QTest::addColumn<std::optional<espchrono::seconds>>("expected");
+
+        QTest::addRow("bullshit") << "bullshit"s << std::optional<espchrono::seconds>{};
+        QTest::addRow("missing_minute") << "00:"s << std::optional<espchrono::seconds>{};
+        QTest::addRow("zero") << "00:00"s << std::optional<espchrono::seconds>{0s};
+        QTest::addRow("zero3") << "00:00:00"s << std::optional<espchrono::seconds>{0s};
+        QTest::addRow("random") << "12:34:56"s << std::optional<espchrono::seconds>{12h+34min+56s};
+        QTest::addRow("random2") << "12:34"s << std::optional<espchrono::seconds>{12h+34min};
+//        QTest::addRow("negative") << "-12:34:56"s << std::optional<espchrono::seconds>{-12h-34min-56s};
+//        QTest::addRow("negative_leading_zero") << "-00:34:56"s << std::optional<espchrono::seconds>{-34min-56s};
+    }
+
+    void test_parseDaypoint()
+    {
+        QFETCH(std::string, input);
+        QFETCH(std::optional<espchrono::seconds>, expected);
+
+        FIXEDCOMPARE(espchrono::parseDaypoint(input), expected);
+    }
+
+    void test_compareTimezones()
+    {
+        espchrono::time_zone a{
+            .offset = 10min,
+            .dayLightSavingMode = espchrono::DayLightSavingMode::None
+        };
+        espchrono::time_zone b{
+            .offset = 10min,
+            .dayLightSavingMode = espchrono::DayLightSavingMode::None
+        };
+
+        FIXEDCOMPARE(a == b, true);
+        FIXEDCOMPARE(a != b, false);
+
+        a.offset -= 1min;
+
+        FIXEDCOMPARE(a == b, false);
+        FIXEDCOMPARE(a != b, true);
+
+        a.dayLightSavingMode = espchrono::DayLightSavingMode::EuropeanSummerTime;
+
+        FIXEDCOMPARE(a == b, false);
+        FIXEDCOMPARE(a != b, true);
+
+        a.offset += 1min;
+
+        FIXEDCOMPARE(a == b, false);
+        FIXEDCOMPARE(a != b, true);
+
+        a.dayLightSavingMode = espchrono::DayLightSavingMode::None;
+
+        FIXEDCOMPARE(a == b, true);
+        FIXEDCOMPARE(a != b, false);
+    }
+
+    void test_compareLocalTimepoints()
+    {
+        espchrono::local_clock::time_point a {
+            espchrono::seconds{10},
+            espchrono::time_zone{
+                .offset = 1h,
+                .dayLightSavingMode = espchrono::DayLightSavingMode::EuropeanSummerTime
+            },
+            false
+        };
+        espchrono::local_clock::time_point b {
+            espchrono::seconds{10},
+            espchrono::time_zone{
+                .offset = 1h,
+                .dayLightSavingMode = espchrono::DayLightSavingMode::EuropeanSummerTime
+            },
+            false
+        };
+
+        FIXEDCOMPARE(a == b, true);
+        FIXEDCOMPARE(a != b, false);
+
+        a.timezone.offset -= 1h;
+
+        FIXEDCOMPARE(a == b, false);
+        FIXEDCOMPARE(a != b, true);
+
+        a.dst = true;
+
+        FIXEDCOMPARE(a == b, false);
+        FIXEDCOMPARE(a != b, true);
+
+        a.timezone.offset += 1h;
+
+        FIXEDCOMPARE(a == b, false);
+        FIXEDCOMPARE(a != b, true);
+
+        a.dst = false;
+
+        FIXEDCOMPARE(a == b, true);
+        FIXEDCOMPARE(a != b, false);
+
+        a -= 1h;
+
+        FIXEDCOMPARE(a == b, false);
+        FIXEDCOMPARE(a != b, true);
+    }
+
+    void test_utcToLocal_data()
+    {
+//        espchrono::utc_clock::time_point test{sys_days{2020_y/January/1}.time_since_epoch()};
+//        for (int i = 0; i < 365; i++)
+//        {
+//            const auto result = espchrono::utcToLocal(test, testTimeZone);
+//            qDebug() << espchrono::toString(espchrono::toDateTime(test)) << espchrono::toString(espchrono::toDateTime(result));
+//            test += 24h;
+//        }
+
+        QTest::addColumn<espchrono::utc_clock::time_point>("utc");
+        QTest::addColumn<espchrono::local_clock::time_point>("expected");
+
+        QTest::addRow("test1") << espchrono::utc_clock::time_point{sys_days{2020_y/January/1}.time_since_epoch()}
+                               << espchrono::local_clock::time_point{sys_days{2020_y/January/1}.time_since_epoch() + 1h, testTimeZone, false};
+        QTest::addRow("test2") << espchrono::utc_clock::time_point{sys_days{2020_y/March/29}.time_since_epoch()}
+                               << espchrono::local_clock::time_point{sys_days{2020_y/March/29}.time_since_epoch() + 1h, testTimeZone, false};
+        QTest::addRow("test3") << espchrono::utc_clock::time_point{sys_days{2020_y/March/30}.time_since_epoch()}
+                               << espchrono::local_clock::time_point{sys_days{2020_y/March/30}.time_since_epoch() + 2h, testTimeZone, true};
+        QTest::addRow("test4") << espchrono::utc_clock::time_point{sys_days{2020_y/October/25}.time_since_epoch()}
+                               << espchrono::local_clock::time_point{sys_days{2020_y/October/25}.time_since_epoch() + 2h, testTimeZone, true};
+        QTest::addRow("test5") << espchrono::utc_clock::time_point{sys_days{2020_y/October/26}.time_since_epoch()}
+                               << espchrono::local_clock::time_point{sys_days{2020_y/October/26}.time_since_epoch() + 1h, testTimeZone, false};
+        QTest::addRow("test6") << espchrono::utc_clock::time_point{sys_days{2020_y/December/31}.time_since_epoch()}
+                               << espchrono::local_clock::time_point{sys_days{2020_y/December/31}.time_since_epoch() + 1h, testTimeZone, false};
+
+        QTest::addRow("test7") << espchrono::utc_clock::time_point{sys_days{2020_y/November/11}.time_since_epoch() + 17h + 30min}
+                               << espchrono::local_clock::time_point{sys_days{2020_y/November/11}.time_since_epoch() + 18h + 30min, testTimeZone, false};
+    }
+
+    void test_utcToLocal()
+    {
+        QFETCH(espchrono::utc_clock::time_point, utc);
+        QFETCH(espchrono::local_clock::time_point, expected);
+
+        FIXEDCOMPARE(utcToLocal(utc, testTimeZone), expected);
+    }
+};
+
+QTEST_APPLESS_MAIN(TstEspChrono)
+
+#include "tst_espchrono.moc"
