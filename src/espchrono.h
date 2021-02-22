@@ -115,7 +115,7 @@ struct local_clock
 
 struct millis_clock
 {
-  typedef milliseconds 	duration;
+  typedef std::chrono::milliseconds 	duration;
   typedef duration::rep	  				rep;
   typedef duration::period	  			period;
   typedef std::chrono::time_point<millis_clock, duration> 	time_point;
