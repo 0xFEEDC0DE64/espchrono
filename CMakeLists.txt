@@ -4,7 +4,6 @@ set(headers
 
 set(sources
     src/espchrono.cpp
-    src/espchrono_espimpl.cpp
 )
 
-idf_component_register(INCLUDE_DIRS src SRCS ${headers} ${sources} REQUIRES freertos esp_system cpputils date espcpputils)
+idf_component_register(INCLUDE_DIRS src SRCS ${headers} ${sources} REQUIRES freertos esp_system cpputils date)
