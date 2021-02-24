@@ -66,6 +66,11 @@ bool daylightSavingTime(local_clock::time_point _timeStamp)
         return (_tempDateTime.date.day() < 8_d && _tempDateTime.dayOfWeek == 1 && _tempDateTime.hour < 2);
     }  // end else
 }
+} // namespace
+
+auto local_clock::now() noexcept -> time_point
+{
+    return utcToLocal(utc_clock::now());
 }
 
 local_clock::time_point utcToLocal(utc_clock::time_point utc, time_zone timezone)
@@ -97,8 +102,13 @@ utc_clock::time_point localToUtc(local_clock::time_point local)
     return utc;
 }
 
+local_clock::time_point utcToLocal(utc_clock::time_point ts)
+{
+    return utcToLocal(ts, local_clock::timezone());
+}
+
 namespace {
-DateTime toDateTime(seconds ts)
+DateTime toDateTime(seconds32 ts)
 {
     auto _time = ts.count();
 
@@ -188,7 +198,7 @@ std::optional<DateTime> parseDateTime(std::string_view str)
     };
 }
 
-std::optional<seconds> parseDaypoint(std::string_view str)
+std::optional<seconds32> parseDaypoint(std::string_view str)
 {
     int8_t hour, minute, second{};
 
@@ -199,7 +209,7 @@ std::optional<seconds> parseDaypoint(std::string_view str)
     if (hour < 0 || hour > 23 || minute < 0 || minute > 59 || second < 0 || second > 59)
         return std::nullopt;
 
-    return hours{hour} + minutes{minute} + seconds{second};
+    return hours32{hour} + minutes32{minute} + seconds32{second};
 }
 
 std::string toString(const DateTime &dateTime)
@@ -217,7 +227,7 @@ std::string toString(const LocalDateTime &dateTime)
 {
     char buf[34];
 
-    date::hh_mm_ss helper{dateTime.timezone.offset + hours{dateTime.dst ? 1 : 0}};
+    date::hh_mm_ss helper{dateTime.timezone.offset + hours32{dateTime.dst ? 1 : 0}};
 
     std::sprintf(buf, "%04i-%02u-%02uT%02hhu:%02hhu:%02hhu %s%02hhu:%02hhu",
                  int{dateTime.date.year()}, unsigned{dateTime.date.month()}, unsigned{dateTime.date.day()},
@@ -227,7 +237,7 @@ std::string toString(const LocalDateTime &dateTime)
     return std::string{buf};
 }
 
-std::string toDaypointString(seconds seconds)
+std::string toDaypointString(seconds32 seconds)
 {
     date::hh_mm_ss helper(seconds);
     char buf[10];
@@ -235,15 +245,15 @@ std::string toDaypointString(seconds seconds)
     return std::string{buf};
 }
 
-milliseconds ago(millis_clock::time_point a)
+std::chrono::milliseconds ago(millis_clock::time_point a)
 {
     return millis_clock::now() - a;
 }
 
-std::string toString(milliseconds val) { return std::to_string(val.count()) + "ms"; }
-std::string toString(seconds val) { return std::to_string(val.count()) + "s"; }
-std::string toString(minutes val) { return std::to_string(val.count()) + "min"; }
-std::string toString(hours val) { return std::to_string(val.count()) + "h"; }
+std::string toString(milliseconds32 val) { return std::to_string(val.count()) + "ms"; }
+std::string toString(seconds32 val) { return std::to_string(val.count()) + "s"; }
+std::string toString(minutes32 val) { return std::to_string(val.count()) + "min"; }
+std::string toString(hours32 val) { return std::to_string(val.count()) + "h"; }
 
 IMPLEMENT_TYPESAFE_ENUM(DayLightSavingMode, : uint8_t, DayLightSavingModeValues)
 

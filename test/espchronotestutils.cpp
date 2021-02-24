@@ -5,7 +5,8 @@ using namespace date;
 
 const espchrono::time_zone testTimeZone{.offset=60min, .dayLightSavingMode=espchrono::DayLightSavingMode::EuropeanSummerTime};
 
-espchrono::millis_clock::time_point wallClock{};
+espchrono::millis_clock::time_point mockedMillisClock{};
+espchrono::utc_clock::time_point mockedUtcClock{};
 
 namespace QTest {
 template<>
@@ -33,13 +34,13 @@ char *toString(const espchrono::local_clock::time_point &ts)
 }
 
 template<>
-char *toString(const espchrono::seconds &val)
+char *toString(const espchrono::seconds32 &val)
 {
     return ::QTest::toString(espchrono::toDaypointString(val));
 }
 
 template<>
-char *toString(const std::optional<espchrono::seconds> &val)
+char *toString(const std::optional<espchrono::seconds32> &val)
 {
     return val ? ::QTest::toString(*val) : ::QTest::toString("(invalid)");
 }
@@ -48,5 +49,13 @@ char *toString(const std::optional<espchrono::seconds> &val)
 // stub implementation to make unit tests happy
 auto espchrono::millis_clock::now() noexcept -> time_point
 {
-    return wallClock;
+    return mockedMillisClock;
+}
+auto espchrono::utc_clock::now() noexcept -> time_point
+{
+    return mockedUtcClock;
+}
+auto espchrono::local_clock::timezone() noexcept -> time_zone
+{
+    return testTimeZone;
 }

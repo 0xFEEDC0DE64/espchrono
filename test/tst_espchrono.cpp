@@ -139,20 +139,20 @@ private slots:
         QTest::addColumn<espchrono::utc_clock::time_point>("time_point");
         QTest::addColumn<espchrono::DateTime>("expected");
 
-        QTest::addRow("random") << espchrono::utc_clock::time_point{espchrono::seconds{123456}} << espchrono::DateTime{
+        QTest::addRow("random") << espchrono::utc_clock::time_point{123456s} << espchrono::DateTime{
                                     2_d/January/1970,
                                     .hour=10, .minute=17, .second=36,
                                     .dayOfWeek=espchrono::DateTime::DayOfWeek::Friday
                                    };
 
-        QTest::addRow("leap_year") << espchrono::utc_clock::time_point{espchrono::seconds{1582934400}}
+        QTest::addRow("leap_year") << espchrono::utc_clock::time_point{1582934400s}
                                    << espchrono::DateTime{
                                        29_d/February/2020,
                                        .hour=0, .minute=0, .second=0,
                                        .dayOfWeek=espchrono::DateTime::DayOfWeek::Saturday
                                       };
 
-        QTest::addRow("normal_year") << espchrono::utc_clock::time_point{espchrono::seconds{1614556800}}
+        QTest::addRow("normal_year") << espchrono::utc_clock::time_point{1614556800s}
                                      << espchrono::DateTime{
                                          1_d/March/2021,
                                          .hour=0, .minute=0, .second=0,
@@ -173,7 +173,7 @@ private slots:
         QTest::addColumn<espchrono::local_clock::time_point>("time_point");
         QTest::addColumn<espchrono::LocalDateTime>("expected");
 
-        QTest::addRow("no_dst") << espchrono::local_clock::time_point(espchrono::seconds{123456}, testTimeZone, false)
+        QTest::addRow("no_dst") << espchrono::local_clock::time_point(123456s, testTimeZone, false)
                                 << espchrono::LocalDateTime{
                                     espchrono::DateTime{
                                      2_d/January/1970,
@@ -183,7 +183,7 @@ private slots:
                                     .timezone = testTimeZone,
                                     .dst = false
                                    };
-        QTest::addRow("with_dst") << espchrono::local_clock::time_point(espchrono::seconds{123456}, testTimeZone, true)
+        QTest::addRow("with_dst") << espchrono::local_clock::time_point(123456s, testTimeZone, true)
                                   << espchrono::LocalDateTime{
                                       espchrono::DateTime{
                                        2_d/January/1970,
@@ -205,22 +205,22 @@ private slots:
 
     void test_toDaypointString_data()
     {
-        QTest::addColumn<espchrono::seconds>("input");
+        QTest::addColumn<espchrono::seconds32>("input");
         QTest::addColumn<std::string>("expected");
 
-        QTest::addRow("00:00:00") << espchrono::seconds{}                << "00:00:00"s;
-        QTest::addRow("05:00:00") << espchrono::seconds{5h}              << "05:00:00"s;
-        QTest::addRow("05:04:00") << espchrono::seconds{5h+4min}         << "05:04:00"s;
-        QTest::addRow("05:04:03") << espchrono::seconds{5h+4min+3s}      << "05:04:03"s;
-        QTest::addRow("05:00:03") << espchrono::seconds{5h+3s}           << "05:00:03"s;
-        QTest::addRow("23:59:59") << espchrono::seconds{23h+59min+59s}   << "23:59:59"s;
-        QTest::addRow("-23:59:59") << espchrono::seconds{-23h-59min-59s} << "-23:59:59"s;
-        QTest::addRow("-00:59:59") << espchrono::seconds{-59min-59s}     << "-00:59:59"s;
+        QTest::addRow("00:00:00") << espchrono::seconds32{}                << "00:00:00"s;
+        QTest::addRow("05:00:00") << espchrono::seconds32{5h}              << "05:00:00"s;
+        QTest::addRow("05:04:00") << espchrono::seconds32{5h+4min}         << "05:04:00"s;
+        QTest::addRow("05:04:03") << espchrono::seconds32{5h+4min+3s}      << "05:04:03"s;
+        QTest::addRow("05:00:03") << espchrono::seconds32{5h+3s}           << "05:00:03"s;
+        QTest::addRow("23:59:59") << espchrono::seconds32{23h+59min+59s}   << "23:59:59"s;
+        QTest::addRow("-23:59:59") << espchrono::seconds32{-23h-59min-59s} << "-23:59:59"s;
+        QTest::addRow("-00:59:59") << espchrono::seconds32{-59min-59s}     << "-00:59:59"s;
     }
 
     void test_toDaypointString()
     {
-        QFETCH(espchrono::seconds, input);
+        QFETCH(espchrono::seconds32, input);
         QFETCH(std::string, expected);
         FIXEDCOMPARE(espchrono::toDaypointString(input), expected);
     }
@@ -228,22 +228,22 @@ private slots:
     void test_parseDaypoint_data()
     {
         QTest::addColumn<std::string>("input");
-        QTest::addColumn<std::optional<espchrono::seconds>>("expected");
+        QTest::addColumn<std::optional<espchrono::seconds32>>("expected");
 
-        QTest::addRow("bullshit") << "bullshit"s << std::optional<espchrono::seconds>{};
-        QTest::addRow("missing_minute") << "00:"s << std::optional<espchrono::seconds>{};
-        QTest::addRow("zero") << "00:00"s << std::optional<espchrono::seconds>{0s};
-        QTest::addRow("zero3") << "00:00:00"s << std::optional<espchrono::seconds>{0s};
-        QTest::addRow("random") << "12:34:56"s << std::optional<espchrono::seconds>{12h+34min+56s};
-        QTest::addRow("random2") << "12:34"s << std::optional<espchrono::seconds>{12h+34min};
-//        QTest::addRow("negative") << "-12:34:56"s << std::optional<espchrono::seconds>{-12h-34min-56s};
-//        QTest::addRow("negative_leading_zero") << "-00:34:56"s << std::optional<espchrono::seconds>{-34min-56s};
+        QTest::addRow("bullshit") << "bullshit"s << std::optional<espchrono::seconds32>{};
+        QTest::addRow("missing_minute") << "00:"s << std::optional<espchrono::seconds32>{};
+        QTest::addRow("zero") << "00:00"s << std::optional<espchrono::seconds32>{0s};
+        QTest::addRow("zero3") << "00:00:00"s << std::optional<espchrono::seconds32>{0s};
+        QTest::addRow("random") << "12:34:56"s << std::optional<espchrono::seconds32>{12h+34min+56s};
+        QTest::addRow("random2") << "12:34"s << std::optional<espchrono::seconds32>{12h+34min};
+//        QTest::addRow("negative") << "-12:34:56"s << std::optional<espchrono::seconds32>{-12h-34min-56s};
+//        QTest::addRow("negative_leading_zero") << "-00:34:56"s << std::optional<espchrono::seconds32>{-34min-56s};
     }
 
     void test_parseDaypoint()
     {
         QFETCH(std::string, input);
-        QFETCH(std::optional<espchrono::seconds>, expected);
+        QFETCH(std::optional<espchrono::seconds32>, expected);
 
         FIXEDCOMPARE(espchrono::parseDaypoint(input), expected);
     }
@@ -286,7 +286,7 @@ private slots:
     void test_compareLocalTimepoints()
     {
         espchrono::local_clock::time_point a {
-            espchrono::seconds{10},
+            10s,
             espchrono::time_zone{
                 .offset = 1h,
                 .dayLightSavingMode = espchrono::DayLightSavingMode::EuropeanSummerTime
@@ -294,7 +294,7 @@ private slots:
             false
         };
         espchrono::local_clock::time_point b {
-            espchrono::seconds{10},
+            10s,
             espchrono::time_zone{
                 .offset = 1h,
                 .dayLightSavingMode = espchrono::DayLightSavingMode::EuropeanSummerTime

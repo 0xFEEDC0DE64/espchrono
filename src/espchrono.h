@@ -17,14 +17,14 @@
 
 namespace espchrono {
 
-using milliseconds = std::chrono::duration<long, std::milli>;
-using seconds = std::chrono::duration<long>;
-using minutes = std::chrono::duration<long, std::ratio<60>>;
-using hours = std::chrono::duration<long, std::ratio<3600>>;
+using milliseconds32 = std::chrono::duration<int32_t, std::milli>;
+using seconds32 = std::chrono::duration<int32_t>;
+using minutes32 = std::chrono::duration<int32_t, std::ratio<60>>;
+using hours32 = std::chrono::duration<int32_t, std::ratio<3600>>;
 
 struct utc_clock
 {
-  typedef seconds     						duration;
+  typedef seconds32    						duration;
   typedef duration::rep    					rep;
   typedef duration::period 					period;
   typedef std::chrono::time_point<utc_clock, duration> time_point;
@@ -45,7 +45,7 @@ DECLARE_TYPESAFE_ENUM(DayLightSavingMode, : uint8_t, DayLightSavingModeValues)
 
 struct time_zone
 {
-    minutes offset{};
+    minutes32 offset{};
     DayLightSavingMode dayLightSavingMode{};
 
     bool operator== (const time_zone &other) const
@@ -100,7 +100,7 @@ public:
 
 struct local_clock
 {
-  typedef seconds     						duration;
+  typedef seconds32    						duration;
   typedef duration::rep    					rep;
   typedef duration::period 					period;
   typedef local_time_point<local_clock, duration> time_point;
@@ -111,6 +111,8 @@ struct local_clock
   static constexpr bool is_steady = false;
 
   static time_point now() noexcept;
+
+  static time_zone timezone() noexcept;
 };
 
 struct millis_clock
@@ -162,6 +164,8 @@ struct LocalDateTime : public DateTime
 local_clock::time_point utcToLocal(utc_clock::time_point timeStamp, time_zone timezone);
 utc_clock::time_point localToUtc(local_clock::time_point local);
 
+local_clock::time_point utcToLocal(utc_clock::time_point ts);
+
 DateTime toDateTime(utc_clock::time_point ts);
 LocalDateTime toDateTime(local_clock::time_point ts);
 
@@ -169,18 +173,18 @@ LocalDateTime toDateTime(local_clock::time_point ts);
 std::optional<DateTime> parseDateTime(std::string_view str);
 
 //! Returns null if string cannot be parsed
-std::optional<seconds> parseDaypoint(std::string_view str);
+std::optional<seconds32> parseDaypoint(std::string_view str);
 
 std::string toString(const DateTime &dateTime);
 
 std::string toString(const LocalDateTime &dateTime);
 
-std::string toDaypointString(seconds seconds);
+std::string toDaypointString(seconds32 seconds);
 
-milliseconds ago(millis_clock::time_point a);
+std::chrono::milliseconds ago(millis_clock::time_point a);
 
-std::string toString(milliseconds val);
-std::string toString(seconds val);
-std::string toString(minutes val);
-std::string toString(hours val);
+std::string toString(milliseconds32 val);
+std::string toString(seconds32 val);
+std::string toString(minutes32 val);
+std::string toString(hours32 val);
 } // namespace espchrono
