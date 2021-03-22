@@ -32,17 +32,17 @@ extern espchrono::utc_clock::time_point mockedUtcClock;
 
 namespace {
 template<typename T>
-espchrono::local_clock::time_point makeLocal(T day, espchrono::minutes32 time)
+espchrono::local_clock::time_point makeLocal(T day, espchrono::minutes32 time, bool dst = false)
 {
-    espchrono::local_clock::time_point localTime{date::sys_days{day}.time_since_epoch(), testTimeZone, false};
+    espchrono::local_clock::time_point localTime{date::sys_days{day}.time_since_epoch(), testTimeZone, dst};
     localTime += time;
     return localTime;
 }
 
 template<typename T>
-espchrono::utc_clock::time_point makeUtcFromLocal(T day, espchrono::minutes32 time)
+espchrono::utc_clock::time_point makeUtcFromLocal(T day, espchrono::minutes32 time, bool dst = false)
 {
-    const auto localTime = makeLocal(day, time);
+    const auto localTime = makeLocal(day, time, dst);
     return espchrono::localToUtc(localTime);
 }
 } // namespace
