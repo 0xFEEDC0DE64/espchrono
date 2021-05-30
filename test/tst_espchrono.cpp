@@ -29,7 +29,7 @@ private slots:
                                     .minute=20,
                                     .second=30,
                                     .dayOfWeek=espchrono::DateTime::DayOfWeek::Monday
-                                   } << "2020-10-10T10:20:30"s;
+                                   } << "2020-10-10T10:20:30.000"s;
 
         QTest::addRow("tuesday") << espchrono::DateTime{
                                     10_d/October/2020,
@@ -37,7 +37,7 @@ private slots:
                                     .minute=20,
                                     .second=30,
                                     .dayOfWeek=espchrono::DateTime::DayOfWeek::Tuesday
-                                   } << "2020-10-10T10:20:30"s;
+                                   } << "2020-10-10T10:20:30.000"s;
 
         QTest::addRow("wednesday") << espchrono::DateTime{
                                     10_d/October/2020,
@@ -45,7 +45,7 @@ private slots:
                                     .minute=20,
                                     .second=30,
                                     .dayOfWeek=espchrono::DateTime::DayOfWeek::Wednesday
-                                   } << "2020-10-10T10:20:30"s;
+                                   } << "2020-10-10T10:20:30.000"s;
 
         QTest::addRow("thursday") << espchrono::DateTime{
                                     10_d/October/2020,
@@ -53,7 +53,7 @@ private slots:
                                     .minute=20,
                                     .second=30,
                                     .dayOfWeek=espchrono::DateTime::DayOfWeek::Thursday
-                                   } << "2020-10-10T10:20:30"s;
+                                   } << "2020-10-10T10:20:30.000"s;
 
         QTest::addRow("friday") << espchrono::DateTime{
                                     10_d/October/2020,
@@ -61,7 +61,7 @@ private slots:
                                     .minute=20,
                                     .second=30,
                                     .dayOfWeek=espchrono::DateTime::DayOfWeek::Friday
-                                   } << "2020-10-10T10:20:30"s;
+                                   } << "2020-10-10T10:20:30.000"s;
 
         QTest::addRow("aturday") << espchrono::DateTime{
                                     10_d/October/2020,
@@ -69,7 +69,7 @@ private slots:
                                     .minute=20,
                                     .second=30,
                                     .dayOfWeek=espchrono::DateTime::DayOfWeek::Saturday
-                                   } << "2020-10-10T10:20:30"s;
+                                   } << "2020-10-10T10:20:30.000"s;
 
         QTest::addRow("unday") << espchrono::DateTime{
                                     10_d/October/2020,
@@ -77,7 +77,7 @@ private slots:
                                     .minute=20,
                                     .second=30,
                                     .dayOfWeek=espchrono::DateTime::DayOfWeek::Sunday
-                                   } << "2020-10-10T10:20:30"s;
+                                   } << "2020-10-10T10:20:30.000"s;
 
         QTest::addRow("leading_zeros") << espchrono::DateTime{
                                            1_d/January/2020,
@@ -85,7 +85,7 @@ private slots:
                                            .minute=2,
                                            .second=3,
                                            .dayOfWeek=espchrono::DateTime::DayOfWeek::Monday
-                                          } << "2020-01-01T01:02:03"s;
+                                          } << "2020-01-01T01:02:03.000"s;
     }
 
     void test_dateTimeUtcToString()
@@ -111,7 +111,7 @@ private slots:
                                            },
                                            .timezone = testTimeZone,
                                            .dst = false
-                                          } << "2020-01-01T01:02:03 +01:00"s;
+                                          } << "2020-01-01T01:02:03.000 +01:00"s;
 
         QTest::addRow("leading_zeros_dst") << espchrono::LocalDateTime{
                                                espchrono::DateTime {
@@ -123,7 +123,7 @@ private slots:
                                                },
                                                .timezone = testTimeZone,
                                                .dst = true
-                                              } << "2020-01-01T01:02:03 +02:00"s;
+                                              } << "2020-01-01T01:02:03.000 +02:00"s;
     }
 
     void test_dateTimeLocalToString()
