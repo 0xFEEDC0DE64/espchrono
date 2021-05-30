@@ -108,10 +108,12 @@ local_clock::time_point utcToLocal(utc_clock::time_point ts)
 }
 
 namespace {
-DateTime toDateTime(seconds32 ts)
+DateTime toDateTime(std::chrono::milliseconds ts)
 {
     auto _time = ts.count();
 
+    uint8_t millisecond(_time % 1000);
+    _time /= 1000; // now it is seconds
     uint8_t second(_time % 60);
     _time /= 60; // now it is minutes
     uint8_t minute(_time % 60);
@@ -152,10 +154,11 @@ DateTime toDateTime(seconds32 ts)
     date::day day(_time + 1);     // day of month
 
     DateTime dateTime{year_month_day{year, month, day}};
-    dateTime.hour=hour;
-    dateTime.minute=minute;
-    dateTime.second=second;
-    dateTime.dayOfWeek=dayOfWeek;
+    dateTime.hour = hour;
+    dateTime.minute = minute;
+    dateTime.second = second;
+    dateTime.millisecond = millisecond;
+    dateTime.dayOfWeek = dayOfWeek;
     return dateTime;
 }
 }
@@ -178,6 +181,7 @@ std::optional<DateTime> parseDateTime(std::string_view str)
     // both valid:
     // 2020-11-10T21:31
     // 2020-11-10T21:31:10
+    // 2020-11-10T21:31:10.001
 
     int year;
     unsigned month;
@@ -185,20 +189,22 @@ std::optional<DateTime> parseDateTime(std::string_view str)
     uint8_t hour;
     uint8_t minute;
     uint8_t second{};
+    uint16_t millisecond{};
 
-    constexpr auto dateTimeFormat = "%4d-%2u-%2uT%2hhu:%2hhu:%2hhu";
-    if (const auto scanned = std::sscanf(str.data(), dateTimeFormat, &year, &month, &day, &hour, &minute, &second); scanned < 5)
+    constexpr auto dateTimeFormat = "%4d-%2u-%2uT%2hhu:%2hhu:%2hhu.%3hu";
+    if (const auto scanned = std::sscanf(str.data(), dateTimeFormat, &year, &month, &day, &hour, &minute, &second, &millisecond); scanned < 5)
         return std::nullopt;
 
     return DateTime{
         .date=date::year_month_day{date::year{year}, date::month{month}, date::day{day}},
         .hour=hour,
         .minute=minute,
-        .second=second
+        .second=second,
+        .millisecond=millisecond
     };
 }
 
-std::optional<seconds32> parseDaypoint(std::string_view str)
+std::optional<std::chrono::seconds> parseDaypoint(std::string_view str)
 {
     int8_t hour, minute, second{};
 
@@ -209,35 +215,35 @@ std::optional<seconds32> parseDaypoint(std::string_view str)
     if (hour < 0 || hour > 23 || minute < 0 || minute > 59 || second < 0 || second > 59)
         return std::nullopt;
 
-    return hours32{hour} + minutes32{minute} + seconds32{second};
+    return std::chrono::hours{hour} + std::chrono::minutes{minute} + std::chrono::seconds{second};
 }
 
 std::string toString(const DateTime &dateTime)
 {
-    char buf[27];
+    char buf[31];
 
-    std::sprintf(buf, "%04i-%02u-%02uT%02hhu:%02hhu:%02hhu",
+    std::sprintf(buf, "%04i-%02u-%02uT%02hhu:%02hhu:%02hhu.%03hu",
                  int{dateTime.date.year()}, unsigned{dateTime.date.month()}, unsigned{dateTime.date.day()},
-                 dateTime.hour, dateTime.minute, dateTime.second);
+                 dateTime.hour, dateTime.minute, dateTime.second, dateTime.millisecond);
 
     return std::string{buf};
 }
 
 std::string toString(const LocalDateTime &dateTime)
 {
-    char buf[34];
+    char buf[35];
 
     date::hh_mm_ss helper{dateTime.timezone.offset + hours32{dateTime.dst ? 1 : 0}};
 
-    std::sprintf(buf, "%04i-%02u-%02uT%02hhu:%02hhu:%02hhu %s%02hhu:%02hhu",
+    std::sprintf(buf, "%04i-%02u-%02uT%02hhu:%02hhu:%02hhu.%03hu %s%02hhu:%02hhu",
                  int{dateTime.date.year()}, unsigned{dateTime.date.month()}, unsigned{dateTime.date.day()},
-                 dateTime.hour, dateTime.minute, dateTime.second,
+                 dateTime.hour, dateTime.minute, dateTime.second, dateTime.millisecond,
                  helper.is_negative() ? "-" : "+", uint8_t(helper.hours().count()), uint8_t(helper.minutes().count()));
 
     return std::string{buf};
 }
 
-std::string toDaypointString(seconds32 seconds)
+std::string toDaypointString(std::chrono::seconds seconds)
 {
     date::hh_mm_ss helper(seconds);
     char buf[10];

@@ -15,8 +15,9 @@ auto espchrono::utc_clock::now() noexcept -> time_point
 {
     timeval tv;
     gettimeofday(&tv, NULL);
-    seconds32 seconds{tv.tv_sec};
-    return time_point{seconds};
+    std::chrono::seconds seconds{tv.tv_sec};
+    std::chrono::microseconds microseconds{tv.tv_usec};
+    return time_point{std::chrono::floor<duration>(seconds+microseconds)};
 }
 
 auto espchrono::millis_clock::now() noexcept -> time_point

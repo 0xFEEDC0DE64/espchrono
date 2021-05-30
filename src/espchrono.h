@@ -24,7 +24,7 @@ using hours32 = std::chrono::duration<int32_t, std::ratio<3600>>;
 
 struct utc_clock
 {
-  typedef seconds32    						duration;
+  typedef std::chrono::milliseconds			duration;
   typedef duration::rep    					rep;
   typedef duration::period 					period;
   typedef std::chrono::time_point<utc_clock, duration> time_point;
@@ -100,7 +100,7 @@ public:
 
 struct local_clock
 {
-  typedef seconds32    						duration;
+  typedef std::chrono::milliseconds			duration;
   typedef duration::rep    					rep;
   typedef duration::period 					period;
   typedef local_time_point<local_clock, duration> time_point;
@@ -134,6 +134,7 @@ struct DateTime
     uint8_t hour{};
     uint8_t minute{};
     uint8_t second{};
+    uint16_t millisecond{};
 
     enum DayOfWeek { Sunday = 1, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday };
     DayOfWeek dayOfWeek{};
@@ -144,6 +145,7 @@ struct DateTime
                hour == other.hour &&
                minute == other.minute &&
                second == other.second &&
+               millisecond == other.millisecond &&
                dayOfWeek == other.dayOfWeek;
     }
 };
@@ -173,13 +175,13 @@ LocalDateTime toDateTime(local_clock::time_point ts);
 std::optional<DateTime> parseDateTime(std::string_view str);
 
 //! Returns null if string cannot be parsed
-std::optional<seconds32> parseDaypoint(std::string_view str);
+std::optional<std::chrono::seconds> parseDaypoint(std::string_view str);
 
 std::string toString(const DateTime &dateTime);
 
 std::string toString(const LocalDateTime &dateTime);
 
-std::string toDaypointString(seconds32 seconds);
+std::string toDaypointString(std::chrono::seconds seconds);
 
 std::chrono::milliseconds ago(millis_clock::time_point a);
 
