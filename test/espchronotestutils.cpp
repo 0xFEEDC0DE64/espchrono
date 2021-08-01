@@ -40,7 +40,7 @@ char *toString(const espchrono::seconds32 &val)
 }
 
 template<>
-char *toString(const std::optional<espchrono::seconds32> &val)
+char *toString(const tl::expected<espchrono::seconds32, std::string> &val)
 {
     return val ? ::QTest::toString(*val) : ::QTest::toString("(invalid)");
 }

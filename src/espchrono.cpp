@@ -1,5 +1,8 @@
 #include "espchrono.h"
 
+// 3rdparty lib includes
+#include <fmt/format.h>
+
 using namespace std::chrono_literals;
 using namespace date;
 
@@ -176,7 +179,7 @@ LocalDateTime toDateTime(local_clock::time_point ts)
     return dateTime;
 }
 
-std::optional<DateTime> parseDateTime(std::string_view str)
+tl::expected<DateTime, std::string> parseDateTime(std::string_view str)
 {
     // both valid:
     // 2020-11-10T21:31
@@ -193,7 +196,7 @@ std::optional<DateTime> parseDateTime(std::string_view str)
 
     constexpr auto dateTimeFormat = "%4d-%2u-%2uT%2hhu:%2hhu:%2hhu.%3hu";
     if (const auto scanned = std::sscanf(str.data(), dateTimeFormat, &year, &month, &day, &hour, &minute, &second, &millisecond); scanned < 5)
-        return std::nullopt;
+        return tl::make_unexpected(fmt::format("invalid DateTime ({})", str));
 
     return DateTime{
         .date=date::year_month_day{date::year{year}, date::month{month}, date::day{day}},
@@ -204,51 +207,46 @@ std::optional<DateTime> parseDateTime(std::string_view str)
     };
 }
 
-std::optional<std::chrono::seconds> parseDaypoint(std::string_view str)
+tl::expected<std::chrono::seconds, std::string> parseDaypoint(std::string_view str)
 {
     int8_t hour, minute, second{};
 
     constexpr auto daypointFormat = "%2hhd:%2hhd:%2hhd";
     if (const auto scanned = std::sscanf(str.data(), daypointFormat, &hour, &minute, &second); scanned < 2)
-        return std::nullopt;
+        return tl::make_unexpected(fmt::format("invalid daypoint ({})", str));
 
     if (hour < 0 || hour > 23 || minute < 0 || minute > 59 || second < 0 || second > 59)
-        return std::nullopt;
+        return tl::make_unexpected(fmt::format("invalid daypoint ({})", str));
 
     return std::chrono::hours{hour} + std::chrono::minutes{minute} + std::chrono::seconds{second};
 }
 
 std::string toString(const DateTime &dateTime)
 {
-    char buf[31];
-
-    std::sprintf(buf, "%04i-%02u-%02uT%02hhu:%02hhu:%02hhu.%03hu",
-                 int{dateTime.date.year()}, unsigned{dateTime.date.month()}, unsigned{dateTime.date.day()},
-                 dateTime.hour, dateTime.minute, dateTime.second, dateTime.millisecond);
-
-    return std::string{buf};
+    return fmt::format("{:04}-{:02}-{:02}T{:02}:{:02}:{:02}.{:03}",
+                       int{dateTime.date.year()}, unsigned{dateTime.date.month()}, unsigned{dateTime.date.day()},
+                       dateTime.hour, dateTime.minute, dateTime.second, dateTime.millisecond);
 }
 
 std::string toString(const LocalDateTime &dateTime)
 {
-    char buf[35];
-
     date::hh_mm_ss helper{dateTime.timezone.offset + hours32{dateTime.dst ? 1 : 0}};
 
-    std::sprintf(buf, "%04i-%02u-%02uT%02hhu:%02hhu:%02hhu.%03hu %s%02hhu:%02hhu",
-                 int{dateTime.date.year()}, unsigned{dateTime.date.month()}, unsigned{dateTime.date.day()},
-                 dateTime.hour, dateTime.minute, dateTime.second, dateTime.millisecond,
-                 helper.is_negative() ? "-" : "+", uint8_t(helper.hours().count()), uint8_t(helper.minutes().count()));
-
-    return std::string{buf};
+    return fmt::format("{:04}-{:02}-{:02}T{:02}:{:02}:{:02}.{:03} {}{:02}:{:02}",
+                       int{dateTime.date.year()}, unsigned{dateTime.date.month()}, unsigned{dateTime.date.day()},
+                       dateTime.hour, dateTime.minute, dateTime.second, dateTime.millisecond,
+                       helper.is_negative() ? "-" : "+", uint8_t(helper.hours().count()), uint8_t(helper.minutes().count()));
 }
 
 std::string toDaypointString(std::chrono::seconds seconds)
 {
     date::hh_mm_ss helper(seconds);
-    char buf[10];
-    std::sprintf(buf, "%s%02hhd:%02hhd:%02hhd", helper.is_negative() ? "-" : "", int8_t(helper.hours().count()), int8_t(helper.minutes().count()), int8_t(helper.seconds().count()));
-    return std::string{buf};
+
+    return fmt::format("{}{:02}:{:02}:{:02}",
+                       helper.is_negative() ? "-" : "",
+                       helper.hours().count(),
+                       helper.minutes().count(),
+                       helper.seconds().count());
 }
 
 std::chrono::milliseconds ago(millis_clock::time_point a)
@@ -256,10 +254,10 @@ std::chrono::milliseconds ago(millis_clock::time_point a)
     return millis_clock::now() - a;
 }
 
-std::string toString(milliseconds32 val) { return std::to_string(val.count()) + "ms"; }
-std::string toString(seconds32 val) { return std::to_string(val.count()) + "s"; }
-std::string toString(minutes32 val) { return std::to_string(val.count()) + "min"; }
-std::string toString(hours32 val) { return std::to_string(val.count()) + "h"; }
+std::string toString(milliseconds32 val) { return fmt::format("{}ms", val.count()); }
+std::string toString(seconds32 val) { return fmt::format("{}s", val.count()); }
+std::string toString(minutes32 val) { return fmt::format("{}min", val.count()); }
+std::string toString(hours32 val) { return fmt::format("{}h", val.count()); }
 
 IMPLEMENT_TYPESAFE_ENUM(DayLightSavingMode, : uint8_t, DayLightSavingModeValues)
 

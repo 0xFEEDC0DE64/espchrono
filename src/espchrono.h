@@ -5,12 +5,12 @@
 #include <cstdint>
 #include <cstdio>
 #include <ratio>
-#include <optional>
 #include <string>
 #include <string_view>
 
 // 3rdparty lib includes
 #include <date/date.h>
+#include <tl/expected.hpp>
 
 // local includes
 #include "cpptypesafeenum.h"
@@ -171,11 +171,9 @@ local_clock::time_point utcToLocal(utc_clock::time_point ts);
 DateTime toDateTime(utc_clock::time_point ts);
 LocalDateTime toDateTime(local_clock::time_point ts);
 
-//! Returns null if string cannot be parsed
-std::optional<DateTime> parseDateTime(std::string_view str);
+tl::expected<DateTime, std::string> parseDateTime(std::string_view str);
 
-//! Returns null if string cannot be parsed
-std::optional<std::chrono::seconds> parseDaypoint(std::string_view str);
+tl::expected<std::chrono::seconds, std::string> parseDaypoint(std::string_view str);
 
 std::string toString(const DateTime &dateTime);
 

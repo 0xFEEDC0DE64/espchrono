@@ -227,23 +227,27 @@ private slots:
 
     void test_parseDaypoint_data()
     {
-        QTest::addColumn<std::string>("input");
-        QTest::addColumn<std::optional<espchrono::seconds32>>("expected");
+        using result_t = tl::expected<espchrono::seconds32, std::string>;
 
-        QTest::addRow("bullshit") << "bullshit"s << std::optional<espchrono::seconds32>{};
-        QTest::addRow("missing_minute") << "00:"s << std::optional<espchrono::seconds32>{};
-        QTest::addRow("zero") << "00:00"s << std::optional<espchrono::seconds32>{0s};
-        QTest::addRow("zero3") << "00:00:00"s << std::optional<espchrono::seconds32>{0s};
-        QTest::addRow("random") << "12:34:56"s << std::optional<espchrono::seconds32>{12h+34min+56s};
-        QTest::addRow("random2") << "12:34"s << std::optional<espchrono::seconds32>{12h+34min};
-//        QTest::addRow("negative") << "-12:34:56"s << std::optional<espchrono::seconds32>{-12h-34min-56s};
-//        QTest::addRow("negative_leading_zero") << "-00:34:56"s << std::optional<espchrono::seconds32>{-34min-56s};
+        QTest::addColumn<std::string>("input");
+        QTest::addColumn<result_t>("expected");
+
+        QTest::addRow("bullshit") << "bullshit"s << result_t{tl::make_unexpected("invalid daypoint (bullshit)")};
+        QTest::addRow("missing_minute") << "00:"s << result_t{tl::make_unexpected("invalid daypoint (00:)")};
+        QTest::addRow("zero") << "00:00"s << result_t{0s};
+        QTest::addRow("zero3") << "00:00:00"s << result_t{0s};
+        QTest::addRow("random") << "12:34:56"s << result_t{12h+34min+56s};
+        QTest::addRow("random2") << "12:34"s << result_t{12h+34min};
+//        QTest::addRow("negative") << "-12:34:56"s << result_t{-12h-34min-56s};
+//        QTest::addRow("negative_leading_zero") << "-00:34:56"s << result_t{-34min-56s};
     }
 
     void test_parseDaypoint()
     {
+        using result_t = tl::expected<espchrono::seconds32, std::string>;
+
         QFETCH(std::string, input);
-        QFETCH(std::optional<espchrono::seconds32>, expected);
+        QFETCH(result_t, expected);
 
         FIXEDCOMPARE(espchrono::parseDaypoint(input), expected);
     }

@@ -30,6 +30,6 @@ addons:
       - "libqt5charts5-dev"
 
 script:
-  - "qmake CLONE_CPPUTILS=1 CLONE_DATE=1 test/tstespchrono.pro"
+  - "qmake CLONE_CPPUTILS=1 CLONE_DATE=1 CLONE_EXPECTED=1 CLONE_FMT=1 test/tstespchrono.pro"
   - "make -j2"
   - ./tstespchrono
