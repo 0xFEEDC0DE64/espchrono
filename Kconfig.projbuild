@@ -1,0 +1,7 @@
+menu "espchrono Configuration"
+
+config ESPCHRONO_SUPPORT_DEFAULT_TIMEZONE
+   bool "Support default timezone"
+   default "y"
+
+endmenu

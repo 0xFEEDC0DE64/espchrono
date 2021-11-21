@@ -71,10 +71,12 @@ bool daylightSavingTime(local_clock::time_point _timeStamp)
 }
 } // namespace
 
+#if !defined(ESP32) || defined(CONFIG_ESPCHRONO_SUPPORT_DEFAULT_TIMEZONE)
 auto local_clock::now() noexcept -> time_point
 {
     return utcToLocal(utc_clock::now());
 }
+#endif
 
 local_clock::time_point utcToLocal(utc_clock::time_point utc, time_zone timezone)
 {
@@ -105,10 +107,12 @@ utc_clock::time_point localToUtc(local_clock::time_point local)
     return utc;
 }
 
+#if !defined(ESP32) || defined(CONFIG_ESPCHRONO_SUPPORT_DEFAULT_TIMEZONE)
 local_clock::time_point utcToLocal(utc_clock::time_point ts)
 {
-    return utcToLocal(ts, local_clock::timezone());
+    return utcToLocal(ts, get_default_timezone());
 }
+#endif
 
 namespace {
 DateTime toDateTime(std::chrono::milliseconds ts)

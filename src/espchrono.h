@@ -1,5 +1,9 @@
 #pragma once
 
+#ifdef ESP32
+#include "sdkconfig.h"
+#endif
+
 // system includes
 #include <chrono>
 #include <cstdint>
@@ -61,6 +65,10 @@ struct time_zone
     }
 };
 
+#if !defined(ESP32) || defined(CONFIG_ESPCHRONO_SUPPORT_DEFAULT_TIMEZONE)
+extern time_zone get_default_timezone() noexcept;
+#endif
+
 template<typename _Clock, typename _Dur>
 struct local_time_point : std::chrono::time_point<_Clock, _Dur>
 {
@@ -110,9 +118,9 @@ struct local_clock
 
   static constexpr bool is_steady = false;
 
+#if !defined(ESP32) || defined(CONFIG_ESPCHRONO_SUPPORT_DEFAULT_TIMEZONE)
   static time_point now() noexcept;
-
-  static time_zone timezone() noexcept;
+#endif
 };
 
 struct millis_clock
@@ -166,7 +174,9 @@ struct LocalDateTime : public DateTime
 local_clock::time_point utcToLocal(utc_clock::time_point timeStamp, time_zone timezone);
 utc_clock::time_point localToUtc(local_clock::time_point local);
 
+#if !defined(ESP32) || defined(CONFIG_ESPCHRONO_SUPPORT_DEFAULT_TIMEZONE)
 local_clock::time_point utcToLocal(utc_clock::time_point ts);
+#endif
 
 DateTime toDateTime(utc_clock::time_point ts);
 LocalDateTime toDateTime(local_clock::time_point ts);
