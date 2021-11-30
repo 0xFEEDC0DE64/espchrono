@@ -55,7 +55,7 @@ auto espchrono::utc_clock::now() noexcept -> time_point
 {
     return mockedUtcClock;
 }
-auto espchrono::local_clock::timezone() noexcept -> time_zone
+espchrono::time_zone espchrono::get_default_timezone() noexcept
 {
     return testTimeZone;
 }
