@@ -24,3 +24,8 @@ auto espchrono::millis_clock::now() noexcept -> time_point
 {
     return time_point{std::chrono::floor<duration>(std::chrono::microseconds{esp_timer_get_time()})};
 }
+
+auto espchrono::micros_clock::now() noexcept -> time_point
+{
+    return time_point{std::chrono::microseconds{esp_timer_get_time()}};
+}

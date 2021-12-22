@@ -135,6 +135,18 @@ struct millis_clock
   static time_point now() noexcept;
 };
 
+struct micros_clock
+{
+    typedef std::chrono::microseconds 	duration;
+    typedef duration::rep	  				rep;
+    typedef duration::period	  			period;
+    typedef std::chrono::time_point<micros_clock, duration> 	time_point;
+
+    static constexpr bool is_steady = true;
+
+    static time_point now() noexcept;
+};
+
 struct DateTime
 {
     date::year_month_day date;
