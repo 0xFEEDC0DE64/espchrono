@@ -11,6 +11,7 @@
 #include <ratio>
 #include <string>
 #include <string_view>
+#include <type_traits>
 
 // 3rdparty lib includes
 #include <date/date.h>
@@ -20,6 +21,15 @@
 #include "cpptypesafeenum.h"
 
 namespace espchrono {
+
+template<class T>
+struct is_duration : std::false_type {};
+
+template<class Rep, class Period>
+struct is_duration<std::chrono::duration<Rep, Period>> : std::true_type {};
+
+template <typename _Tp>
+inline constexpr bool is_duration_v = is_duration<_Tp>::value;
 
 using milliseconds32 = std::chrono::duration<int32_t, std::milli>;
 using seconds32 = std::chrono::duration<int32_t>;
