@@ -37,12 +37,14 @@ bool daylightSavingTime(local_clock::time_point _timeStamp)
     //int previousSunday = day - (dow-1);
     // -------------------- March ---------------------------------------
     //In march, we are DST if our previous Sunday was = to or after the 8th.
-    if (_tempDateTime.date.month() == March) {  // in march, if previous Sunday is after the 8th, is DST
+    if (_tempDateTime.date.month() == March)  // in march, if previous Sunday is after the 8th, is DST
+    {
         // unless Sunday and hour < 2am
-        if (previousSunday >= 8) { // Sunday = 1
+        if (previousSunday >= 8) // Sunday = 1
+        {
             // return true if day > 14 or (dow == 1 and hour >= 2)
-            return ((_tempDateTime.date.day() > 14_d) ||
-            ((_tempDateTime.dayOfWeek == 1 && _tempDateTime.hour >= 2) || _tempDateTime.dayOfWeek > 1));
+            return (_tempDateTime.date.day() > 14_d) ||
+                   ((_tempDateTime.dayOfWeek == 1 && _tempDateTime.hour >= 2) || _tempDateTime.dayOfWeek > 1);
         } // end if ( previousSunday >= 8 && _dateTime.dayofWeek > 0 )
         else
         {
@@ -60,13 +62,13 @@ bool daylightSavingTime(local_clock::time_point _timeStamp)
     if (previousSunday < 1)
     {
         // is not true for Sunday after 2am or any day after 1st Sunday any time
-        return ((_tempDateTime.dayOfWeek == 1 && _tempDateTime.hour < 2) || (_tempDateTime.dayOfWeek > 1));
+        return (_tempDateTime.dayOfWeek == 1 && _tempDateTime.hour < 2) || (_tempDateTime.dayOfWeek > 1);
         //return true;
     } // end if (previousSunday < 1)
     else
     {
         // return false unless after first wk and dow = Sunday and hour < 2
-        return (_tempDateTime.date.day() < 8_d && _tempDateTime.dayOfWeek == 1 && _tempDateTime.hour < 2);
+        return _tempDateTime.date.day() < 8_d && _tempDateTime.dayOfWeek == 1 && _tempDateTime.hour < 2;
     }  // end else
 }
 } // namespace
@@ -115,11 +117,13 @@ local_clock::time_point utcToLocal(utc_clock::time_point ts)
 #endif
 
 namespace {
-DateTime toDateTime(std::chrono::milliseconds ts)
+DateTime toDateTime(std::chrono::microseconds ts)
 {
     auto _time = ts.count();
 
-    uint8_t millisecond(_time % 1000);
+    uint16_t microsecond(_time % 1000);
+    _time /= 1000; // now it is milliseconds
+    uint16_t millisecond(_time % 1000);
     _time /= 1000; // now it is seconds
     uint8_t second(_time % 60);
     _time /= 60; // now it is minutes
@@ -131,9 +135,8 @@ DateTime toDateTime(std::chrono::milliseconds ts)
 
     date::year year{1970};
     unsigned long _days = 0;
-    while ((unsigned)(_days += (year.is_leap() ? 366 : 365)) <= _time) {
+    while ((unsigned)(_days += (year.is_leap() ? 366 : 365)) <= _time)
         year++;
-    }
 
     _days -= year.is_leap() ? 366 : 365;
     _time  -= _days; // now it is days in this year, starting at 0
@@ -141,22 +144,22 @@ DateTime toDateTime(std::chrono::milliseconds ts)
     _days = 0;
     uint8_t _monthLength = 0;
     date::month month = January;
-    for (; month <= December; month++) {
-        if (month == February) { // february
-            if (year.is_leap()) {
+    for (; month <= December; month++)
+    {
+        if (month == February) // february
+        {
+            if (year.is_leap())
                 _monthLength = 29;
-            } else {
+            else
                 _monthLength = 28;
-            }
-        } else {
+        }
+        else
             _monthLength = _monthDays[unsigned(month)-1];
-        }
 
-        if (_time >= _monthLength) {
+        if (_time >= _monthLength)
             _time -= _monthLength;
-        } else {
+        else
             break;
-        }
     }
     date::day day(_time + 1);     // day of month
 
@@ -165,6 +168,7 @@ DateTime toDateTime(std::chrono::milliseconds ts)
     dateTime.minute = minute;
     dateTime.second = second;
     dateTime.millisecond = millisecond;
+    dateTime.microsecond = microsecond;
     dateTime.dayOfWeek = dayOfWeek;
     return dateTime;
 }
@@ -189,6 +193,7 @@ tl::expected<DateTime, std::string> parseDateTime(std::string_view str)
     // 2020-11-10T21:31
     // 2020-11-10T21:31:10
     // 2020-11-10T21:31:10.001
+    // 2020-11-10T21:31:10.001.002
 
     int year;
     unsigned month;
@@ -197,9 +202,10 @@ tl::expected<DateTime, std::string> parseDateTime(std::string_view str)
     uint8_t minute;
     uint8_t second{};
     uint16_t millisecond{};
+    uint16_t microsecond{};
 
-    constexpr auto dateTimeFormat = "%4d-%2u-%2uT%2hhu:%2hhu:%2hhu.%3hu";
-    if (const auto scanned = std::sscanf(str.data(), dateTimeFormat, &year, &month, &day, &hour, &minute, &second, &millisecond); scanned < 5)
+    constexpr auto dateTimeFormat = "%4d-%2u-%2uT%2hhu:%2hhu:%2hhu.%3hu.%3hu";
+    if (const auto scanned = std::sscanf(str.data(), dateTimeFormat, &year, &month, &day, &hour, &minute, &second, &millisecond, &microsecond); scanned < 5)
         return tl::make_unexpected(fmt::format("invalid DateTime ({})", str));
 
     return DateTime{
@@ -207,7 +213,8 @@ tl::expected<DateTime, std::string> parseDateTime(std::string_view str)
         .hour=hour,
         .minute=minute,
         .second=second,
-        .millisecond=millisecond
+        .millisecond=millisecond,
+        .microsecond=microsecond
     };
 }
 
@@ -227,18 +234,18 @@ tl::expected<std::chrono::seconds, std::string> parseDaypoint(std::string_view s
 
 std::string toString(const DateTime &dateTime)
 {
-    return fmt::format("{:04}-{:02}-{:02}T{:02}:{:02}:{:02}.{:03}",
+    return fmt::format("{:04}-{:02}-{:02}T{:02}:{:02}:{:02}.{:03}.{:03}",
                        int{dateTime.date.year()}, unsigned{dateTime.date.month()}, unsigned{dateTime.date.day()},
-                       dateTime.hour, dateTime.minute, dateTime.second, dateTime.millisecond);
+                       dateTime.hour, dateTime.minute, dateTime.second, dateTime.millisecond, dateTime.microsecond);
 }
 
 std::string toString(const LocalDateTime &dateTime)
 {
     date::hh_mm_ss helper{dateTime.timezone.offset + hours32{dateTime.dst ? 1 : 0}};
 
-    return fmt::format("{:04}-{:02}-{:02}T{:02}:{:02}:{:02}.{:03} {}{:02}:{:02}",
+    return fmt::format("{:04}-{:02}-{:02}T{:02}:{:02}:{:02}.{:03}.{:03} {}{:02}:{:02}",
                        int{dateTime.date.year()}, unsigned{dateTime.date.month()}, unsigned{dateTime.date.day()},
-                       dateTime.hour, dateTime.minute, dateTime.second, dateTime.millisecond,
+                       dateTime.hour, dateTime.minute, dateTime.second, dateTime.millisecond, dateTime.microsecond,
                        helper.is_negative() ? "-" : "+", uint8_t(helper.hours().count()), uint8_t(helper.minutes().count()));
 }
 
@@ -253,7 +260,7 @@ std::string toDaypointString(std::chrono::seconds seconds)
                        helper.seconds().count());
 }
 
-std::chrono::milliseconds ago(millis_clock::time_point a)
+std::chrono::microseconds ago(millis_clock::time_point a)
 {
     return millis_clock::now() - a;
 }

@@ -38,7 +38,7 @@ using hours32 = std::chrono::duration<int32_t, std::ratio<3600>>;
 
 struct utc_clock
 {
-  typedef std::chrono::milliseconds			duration;
+  typedef std::chrono::microseconds			duration;
   typedef duration::rep    					rep;
   typedef duration::period 					period;
   typedef std::chrono::time_point<utc_clock, duration> time_point;
@@ -118,7 +118,7 @@ public:
 
 struct local_clock
 {
-  typedef std::chrono::milliseconds			duration;
+  typedef std::chrono::microseconds			duration;
   typedef duration::rep    					rep;
   typedef duration::period 					period;
   typedef local_time_point<local_clock, duration> time_point;
@@ -135,7 +135,7 @@ struct local_clock
 
 struct millis_clock
 {
-  typedef std::chrono::milliseconds 	duration;
+  typedef std::chrono::microseconds 	duration;
   typedef duration::rep	  				rep;
   typedef duration::period	  			period;
   typedef std::chrono::time_point<millis_clock, duration> 	time_point;
@@ -143,18 +143,6 @@ struct millis_clock
   static constexpr bool is_steady = true;
 
   static time_point now() noexcept;
-};
-
-struct micros_clock
-{
-    typedef std::chrono::microseconds 	duration;
-    typedef duration::rep	  				rep;
-    typedef duration::period	  			period;
-    typedef std::chrono::time_point<micros_clock, duration> 	time_point;
-
-    static constexpr bool is_steady = true;
-
-    static time_point now() noexcept;
 };
 
 struct DateTime
@@ -165,6 +153,7 @@ struct DateTime
     uint8_t minute{};
     uint8_t second{};
     uint16_t millisecond{};
+    uint16_t microsecond{};
 
     enum DayOfWeek { Sunday = 1, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday };
     DayOfWeek dayOfWeek{};
@@ -176,6 +165,7 @@ struct DateTime
                minute == other.minute &&
                second == other.second &&
                millisecond == other.millisecond &&
+               microsecond == other.microsecond &&
                dayOfWeek == other.dayOfWeek;
     }
 };
@@ -213,7 +203,7 @@ std::string toString(const LocalDateTime &dateTime);
 
 std::string toDaypointString(std::chrono::seconds seconds);
 
-std::chrono::milliseconds ago(millis_clock::time_point a);
+std::chrono::microseconds ago(millis_clock::time_point a);
 
 std::string toString(milliseconds32 val);
 std::string toString(seconds32 val);
