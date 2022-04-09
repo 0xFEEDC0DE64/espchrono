@@ -270,6 +270,4 @@ std::string toString(seconds32 val) { return fmt::format("{}s", val.count()); }
 std::string toString(minutes32 val) { return fmt::format("{}min", val.count()); }
 std::string toString(hours32 val) { return fmt::format("{}h", val.count()); }
 
-IMPLEMENT_TYPESAFE_ENUM(DayLightSavingMode, : uint8_t, DayLightSavingModeValues)
-
 } // namespace espchrono
