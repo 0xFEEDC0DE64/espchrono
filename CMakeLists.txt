@@ -9,7 +9,7 @@ set(sources
 
 set(dependencies
     freertos
-    esp_system
+    esp_timer
 
     cpputils
     date
