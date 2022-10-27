@@ -18,8 +18,8 @@ bool summerTime(local_clock::time_point timeStamp)
     if (_tempDateTime.date.month() < March || _tempDateTime.date.month() > October) return false; // keine Sommerzeit in Jan, Feb, Nov, Dez
     if (_tempDateTime.date.month() > March && _tempDateTime.date.month() < October) return true; // Sommerzeit in Apr, Mai, Jun, Jul, Aug, Sep
     return
-        (_tempDateTime.date.month() == March && (_tempDateTime.hour + 24 * unsigned(_tempDateTime.date.day())) >= (3 +  24 * (31 - (5 * int(_tempDateTime.date.year()) / 4 + 4) % 7))) ||
-        (_tempDateTime.date.month() == October && (_tempDateTime.hour + 24 * unsigned(_tempDateTime.date.day())) < (3 +  24 * (31 - (5 * int(_tempDateTime.date.year()) / 4 + 1) % 7)));
+        (_tempDateTime.date.month() == March && (_tempDateTime.hour + 24 * unsigned(_tempDateTime.date.day())) >= (2 + 24 * (31 - (5 * int(_tempDateTime.date.year()) / 4 + 4) % 7))) ||
+        (_tempDateTime.date.month() == October && (_tempDateTime.hour + 24 * unsigned(_tempDateTime.date.day())) < (2 + 24 * (31 - (5 * int(_tempDateTime.date.year()) / 4 + 1) % 7)));
 }
 
 bool daylightSavingTime(local_clock::time_point _timeStamp)
@@ -234,18 +234,18 @@ tl::expected<std::chrono::seconds, std::string> parseDaypoint(std::string_view s
 
 std::string toString(const DateTime &dateTime)
 {
-    return fmt::format("{:04}-{:02}-{:02}T{:02}:{:02}:{:02}.{:03}.{:03}",
+    return fmt::format("{:04}-{:02}-{:02}T{:02}:{:02}:{:02}.{:03}",
                        int{dateTime.date.year()}, unsigned{dateTime.date.month()}, unsigned{dateTime.date.day()},
-                       dateTime.hour, dateTime.minute, dateTime.second, dateTime.millisecond, dateTime.microsecond);
+                       dateTime.hour, dateTime.minute, dateTime.second, dateTime.millisecond);
 }
 
 std::string toString(const LocalDateTime &dateTime)
 {
     date::hh_mm_ss helper{dateTime.timezone.offset + hours32{dateTime.dst ? 1 : 0}};
 
-    return fmt::format("{:04}-{:02}-{:02}T{:02}:{:02}:{:02}.{:03}.{:03} {}{:02}:{:02}",
+    return fmt::format("{:04}-{:02}-{:02}T{:02}:{:02}:{:02}.{:03} {}{:02}:{:02}",
                        int{dateTime.date.year()}, unsigned{dateTime.date.month()}, unsigned{dateTime.date.day()},
-                       dateTime.hour, dateTime.minute, dateTime.second, dateTime.millisecond, dateTime.microsecond,
+                       dateTime.hour, dateTime.minute, dateTime.second, dateTime.millisecond,
                        helper.is_negative() ? "-" : "+", uint8_t(helper.hours().count()), uint8_t(helper.minutes().count()));
 }
 

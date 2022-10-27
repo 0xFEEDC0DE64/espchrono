@@ -363,6 +363,26 @@ private slots:
 
         QTest::addRow("test7") << espchrono::utc_clock::time_point{sys_days{2020_y/November/11}.time_since_epoch() + 17h + 30min}
                                << espchrono::local_clock::time_point{sys_days{2020_y/November/11}.time_since_epoch() + 18h + 30min, testTimeZone, false};
+
+
+
+        QTest::addRow("test8") << espchrono::utc_clock::time_point{sys_days{2022_y/October/30}.time_since_epoch() + 0h + 30min}
+                               << espchrono::local_clock::time_point{sys_days{2022_y/October/30}.time_since_epoch() + 2h + 30min, testTimeZone, true};
+        QTest::addRow("test9") << espchrono::utc_clock::time_point{sys_days{2022_y/October/30}.time_since_epoch() + 1h + 30min}
+                               << espchrono::local_clock::time_point{sys_days{2022_y/October/30}.time_since_epoch() + 2h + 30min, testTimeZone, false};
+        QTest::addRow("test10") << espchrono::utc_clock::time_point{sys_days{2022_y/October/30}.time_since_epoch() + 2h + 30min}
+                               << espchrono::local_clock::time_point{sys_days{2022_y/October/30}.time_since_epoch() + 3h + 30min, testTimeZone, false};
+        QTest::addRow("test11") << espchrono::utc_clock::time_point{sys_days{2022_y/October/30}.time_since_epoch() + 3h + 30min}
+                               << espchrono::local_clock::time_point{sys_days{2022_y/October/30}.time_since_epoch() + 4h + 30min, testTimeZone, false};
+
+        QTest::addRow("test12") << espchrono::utc_clock::time_point{sys_days{2023_y/March/Sunday[last]}.time_since_epoch() + 0h + 30min}
+                               << espchrono::local_clock::time_point{sys_days{2023_y/March/Sunday[last]}.time_since_epoch() + 1h + 30min, testTimeZone, false};
+        QTest::addRow("test13") << espchrono::utc_clock::time_point{sys_days{2023_y/March/Sunday[last]}.time_since_epoch() + 1h + 30min}
+                               << espchrono::local_clock::time_point{sys_days{2023_y/March/Sunday[last]}.time_since_epoch() + 3h + 30min, testTimeZone, true};
+        QTest::addRow("test14") << espchrono::utc_clock::time_point{sys_days{2023_y/March/Sunday[last]}.time_since_epoch() + 2h + 30min}
+                               << espchrono::local_clock::time_point{sys_days{2023_y/March/Sunday[last]}.time_since_epoch() + 4h + 30min, testTimeZone, true};
+        QTest::addRow("test15") << espchrono::utc_clock::time_point{sys_days{2023_y/March/Sunday[last]}.time_since_epoch() + 3h + 30min}
+                               << espchrono::local_clock::time_point{sys_days{2023_y/March/Sunday[last]}.time_since_epoch() + 5h + 30min, testTimeZone, true};
     }
 
     void test_utcToLocal()
