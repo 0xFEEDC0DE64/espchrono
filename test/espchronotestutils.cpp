@@ -22,6 +22,42 @@ char *toString(const espchrono::LocalDateTime &dateTime)
 }
 
 template<>
+char *toString(const std::chrono::microseconds &duration)
+{
+    return ::QTest::toString(QString{"%0us"}.arg(duration.count()));
+}
+
+template<>
+char *toString(const std::chrono::milliseconds &duration)
+{
+    return ::QTest::toString(QString{"%0ms"}.arg(duration.count()));
+}
+
+template<>
+char *toString(const std::chrono::seconds &duration)
+{
+    return ::QTest::toString(QString{"%0s"}.arg(duration.count()));
+}
+
+template<>
+char *toString(const std::chrono::minutes &duration)
+{
+    return ::QTest::toString(QString{"%0m"}.arg(duration.count()));
+}
+
+template<>
+char *toString(const std::chrono::hours &duration)
+{
+    return ::QTest::toString(QString{"%0h"}.arg(duration.count()));
+}
+
+template<>
+char *toString(const espchrono::millis_clock::time_point &ts)
+{
+    return ::QTest::toString(ts.time_since_epoch());
+}
+
+template<>
 char *toString(const espchrono::utc_clock::time_point &ts)
 {
     return ::QTest::toString(espchrono::toDateTime(ts));

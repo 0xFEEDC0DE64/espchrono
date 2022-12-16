@@ -11,6 +11,7 @@
 #include "espchrono.h"
 #include "cpputilstestutils.h"
 
+Q_DECLARE_METATYPE(std::chrono::microseconds)
 Q_DECLARE_METATYPE(std::chrono::milliseconds)
 Q_DECLARE_METATYPE(std::chrono::seconds)
 Q_DECLARE_METATYPE(std::chrono::minutes)
@@ -19,6 +20,7 @@ Q_DECLARE_METATYPE(espchrono::milliseconds32)
 Q_DECLARE_METATYPE(espchrono::seconds32)
 Q_DECLARE_METATYPE(espchrono::minutes32)
 Q_DECLARE_METATYPE(espchrono::hours32)
+Q_DECLARE_METATYPE(espchrono::millis_clock::time_point)
 Q_DECLARE_METATYPE(espchrono::utc_clock::time_point)
 Q_DECLARE_METATYPE(espchrono::local_clock::time_point)
 Q_DECLARE_METATYPE(espchrono::DateTime)
@@ -54,6 +56,24 @@ char *toString(const espchrono::DateTime &dateTime);
 
 template<>
 char *toString(const espchrono::LocalDateTime &dateTime);
+
+template<>
+char *toString(const std::chrono::microseconds &duration);
+
+template<>
+char *toString(const std::chrono::milliseconds &duration);
+
+template<>
+char *toString(const std::chrono::seconds &duration);
+
+template<>
+char *toString(const std::chrono::minutes &duration);
+
+template<>
+char *toString(const std::chrono::hours &duration);
+
+template<>
+char *toString(const espchrono::millis_clock::time_point &ts);
 
 template<>
 char *toString(const espchrono::utc_clock::time_point &ts);
