@@ -12,10 +12,10 @@
 #include <string>
 #include <string_view>
 #include <type_traits>
+#include <expected>
 
 // 3rdparty lib includes
 #include <date/date.h>
-#include <tl/expected.hpp>
 
 // local includes
 #include "cpptypesafeenum.h"
@@ -193,9 +193,9 @@ local_clock::time_point utcToLocal(utc_clock::time_point ts);
 DateTime toDateTime(utc_clock::time_point ts);
 LocalDateTime toDateTime(local_clock::time_point ts);
 
-tl::expected<DateTime, std::string> parseDateTime(std::string_view str);
+std::expected<DateTime, std::string> parseDateTime(std::string_view str);
 
-tl::expected<std::chrono::seconds, std::string> parseDaypoint(std::string_view str);
+std::expected<std::chrono::seconds, std::string> parseDaypoint(std::string_view str);
 
 std::string toString(const DateTime &dateTime);
 

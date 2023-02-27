@@ -227,13 +227,13 @@ private slots:
 
     void test_parseDaypoint_data()
     {
-        using result_t = tl::expected<espchrono::seconds32, std::string>;
+        using result_t = std::expected<espchrono::seconds32, std::string>;
 
         QTest::addColumn<std::string>("input");
         QTest::addColumn<result_t>("expected");
 
-        QTest::addRow("bullshit") << "bullshit"s << result_t{tl::make_unexpected("invalid daypoint (bullshit)")};
-        QTest::addRow("missing_minute") << "00:"s << result_t{tl::make_unexpected("invalid daypoint (00:)")};
+        QTest::addRow("bullshit") << "bullshit"s << result_t{std::unexpected("invalid daypoint (bullshit)")};
+        QTest::addRow("missing_minute") << "00:"s << result_t{std::unexpected("invalid daypoint (00:)")};
         QTest::addRow("zero") << "00:00"s << result_t{0s};
         QTest::addRow("zero3") << "00:00:00"s << result_t{0s};
         QTest::addRow("random") << "12:34:56"s << result_t{12h+34min+56s};
@@ -244,7 +244,7 @@ private slots:
 
     void test_parseDaypoint()
     {
-        using result_t = tl::expected<espchrono::seconds32, std::string>;
+        using result_t = std::expected<espchrono::seconds32, std::string>;
 
         QFETCH(std::string, input);
         QFETCH(result_t, expected);

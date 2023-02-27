@@ -25,7 +25,7 @@ Q_DECLARE_METATYPE(espchrono::utc_clock::time_point)
 Q_DECLARE_METATYPE(espchrono::local_clock::time_point)
 Q_DECLARE_METATYPE(espchrono::DateTime)
 Q_DECLARE_METATYPE(espchrono::LocalDateTime)
-using X = tl::expected<espchrono::seconds32, std::string>;
+using X = std::expected<espchrono::seconds32, std::string>;
 Q_DECLARE_METATYPE(X)
 
 extern const espchrono::time_zone testTimeZone;
@@ -85,5 +85,5 @@ template<>
 char *toString(const espchrono::seconds32 &val);
 
 template<>
-char *toString(const tl::expected<espchrono::seconds32, std::string> &val);
+char *toString(const std::expected<espchrono::seconds32, std::string> &val);
 } // namespace QTest

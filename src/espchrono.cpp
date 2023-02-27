@@ -187,7 +187,7 @@ LocalDateTime toDateTime(local_clock::time_point ts)
     return dateTime;
 }
 
-tl::expected<DateTime, std::string> parseDateTime(std::string_view str)
+std::expected<DateTime, std::string> parseDateTime(std::string_view str)
 {
     // both valid:
     // 2020-11-10T21:31
@@ -206,7 +206,7 @@ tl::expected<DateTime, std::string> parseDateTime(std::string_view str)
 
     constexpr auto dateTimeFormat = "%4d-%2u-%2uT%2hhu:%2hhu:%2hhu.%3hu.%3hu";
     if (const auto scanned = std::sscanf(str.data(), dateTimeFormat, &year, &month, &day, &hour, &minute, &second, &millisecond, &microsecond); scanned < 5)
-        return tl::make_unexpected(fmt::format("invalid DateTime ({})", str));
+        return std::unexpected(fmt::format("invalid DateTime ({})", str));
 
     return DateTime{
         .date=date::year_month_day{date::year{year}, date::month{month}, date::day{day}},
@@ -218,16 +218,16 @@ tl::expected<DateTime, std::string> parseDateTime(std::string_view str)
     };
 }
 
-tl::expected<std::chrono::seconds, std::string> parseDaypoint(std::string_view str)
+std::expected<std::chrono::seconds, std::string> parseDaypoint(std::string_view str)
 {
     int8_t hour, minute, second{};
 
     constexpr auto daypointFormat = "%2hhd:%2hhd:%2hhd";
     if (const auto scanned = std::sscanf(str.data(), daypointFormat, &hour, &minute, &second); scanned < 2)
-        return tl::make_unexpected(fmt::format("invalid daypoint ({})", str));
+        return std::unexpected(fmt::format("invalid daypoint ({})", str));
 
     if (hour < 0 || hour > 23 || minute < 0 || minute > 59 || second < 0 || second > 59)
-        return tl::make_unexpected(fmt::format("invalid daypoint ({})", str));
+        return std::unexpected(fmt::format("invalid daypoint ({})", str));
 
     return std::chrono::hours{hour} + std::chrono::minutes{minute} + std::chrono::seconds{second};
 }

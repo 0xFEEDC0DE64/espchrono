@@ -13,7 +13,6 @@ set(dependencies
 
     cpputils
     date
-    expected
     fmt
 )
 
