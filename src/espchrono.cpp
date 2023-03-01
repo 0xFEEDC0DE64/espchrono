@@ -11,7 +11,7 @@ namespace espchrono {
 namespace {
 static const uint8_t _monthDays[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
-bool summerTime(local_clock::time_point timeStamp)
+bool isEuropeanSummerTime(local_clock::time_point timeStamp)
 {
     LocalDateTime _tempDateTime = toDateTime(timeStamp);
 
@@ -22,7 +22,7 @@ bool summerTime(local_clock::time_point timeStamp)
         (_tempDateTime.date.month() == October && (_tempDateTime.hour + 24 * unsigned(_tempDateTime.date.day())) < (2 + 24 * (31 - (5 * int(_tempDateTime.date.year()) / 4 + 1) % 7)));
 }
 
-bool daylightSavingTime(local_clock::time_point _timeStamp)
+bool isUsDaylightTime(local_clock::time_point _timeStamp)
 {
     LocalDateTime  _tempDateTime = toDateTime(_timeStamp);
 
@@ -71,6 +71,16 @@ bool daylightSavingTime(local_clock::time_point _timeStamp)
         return _tempDateTime.date.day() < 8_d && _tempDateTime.dayOfWeek == 1 && _tempDateTime.hour < 2;
     }  // end else
 }
+
+bool isAustralianDaylightTime(local_clock::time_point timeStamp)
+{
+    LocalDateTime dateTime = toDateTime(timeStamp);
+
+    const date::sys_days startOfDst = dateTime.date.year()/October/Sunday[0];
+    const date::sys_days endOfDst = dateTime.date.year()/April/Sunday[0];
+
+    return dateTime.date < endOfDst || dateTime.date > startOfDst;
+}
 } // namespace
 
 #if !defined(ESP32) || defined(CONFIG_ESPCHRONO_SUPPORT_DEFAULT_TIMEZONE)
@@ -87,8 +97,9 @@ local_clock::time_point utcToLocal(utc_clock::time_point utc, time_zone timezone
     switch (timezone.dayLightSavingMode)
     {
     case DayLightSavingMode::None: break;
-    case DayLightSavingMode::EuropeanSummerTime: if (summerTime(local))         local.dst = true; break;
-    case DayLightSavingMode::UsDaylightTime:     if (daylightSavingTime(local)) local.dst = true; break;
+    case DayLightSavingMode::EuropeanSummerTime:     if (isEuropeanSummerTime(local)) local.dst = true; break;
+    case DayLightSavingMode::UsDaylightTime:         if (isUsDaylightTime(local))     local.dst = true; break;
+    case DayLightSavingMode::AustralianDaylightTime: if (isAustralianDaylightTime(local))     local.dst = true; break;
     }
 
     if (local.dst)

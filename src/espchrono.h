@@ -54,7 +54,8 @@ struct utc_clock
 #define DayLightSavingModeValues(x) \
     x(None) \
     x(EuropeanSummerTime) \
-    x(UsDaylightTime)
+    x(UsDaylightTime) \
+    x(AustralianDaylightTime)
 DECLARE_TYPESAFE_ENUM(DayLightSavingMode, : uint8_t, DayLightSavingModeValues)
 
 struct time_zone
