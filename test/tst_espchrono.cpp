@@ -24,7 +24,7 @@ private slots:
         QTest::addColumn<std::string>("expected");
 
         QTest::addRow("monday") << espchrono::DateTime{
-                                    10_d/October/2020,
+                                    .date = 10_d/October/2020,
                                     .hour=10,
                                     .minute=20,
                                     .second=30,
@@ -32,7 +32,7 @@ private slots:
                                    } << "2020-10-10T10:20:30.000"s;
 
         QTest::addRow("tuesday") << espchrono::DateTime{
-                                    10_d/October/2020,
+                                    .date = 10_d/October/2020,
                                     .hour=10,
                                     .minute=20,
                                     .second=30,
@@ -40,7 +40,7 @@ private slots:
                                    } << "2020-10-10T10:20:30.000"s;
 
         QTest::addRow("wednesday") << espchrono::DateTime{
-                                    10_d/October/2020,
+                                    .date = 10_d/October/2020,
                                     .hour=10,
                                     .minute=20,
                                     .second=30,
@@ -48,7 +48,7 @@ private slots:
                                    } << "2020-10-10T10:20:30.000"s;
 
         QTest::addRow("thursday") << espchrono::DateTime{
-                                    10_d/October/2020,
+                                    .date = 10_d/October/2020,
                                     .hour=10,
                                     .minute=20,
                                     .second=30,
@@ -56,31 +56,31 @@ private slots:
                                    } << "2020-10-10T10:20:30.000"s;
 
         QTest::addRow("friday") << espchrono::DateTime{
-                                    10_d/October/2020,
+                                    .date = 10_d/October/2020,
                                     .hour=10,
                                     .minute=20,
                                     .second=30,
                                     .dayOfWeek=espchrono::DateTime::DayOfWeek::Friday
                                    } << "2020-10-10T10:20:30.000"s;
 
-        QTest::addRow("aturday") << espchrono::DateTime{
-                                    10_d/October/2020,
-                                    .hour=10,
-                                    .minute=20,
-                                    .second=30,
-                                    .dayOfWeek=espchrono::DateTime::DayOfWeek::Saturday
-                                   } << "2020-10-10T10:20:30.000"s;
+        QTest::addRow("saturday") << espchrono::DateTime{
+                                     .date = 10_d/October/2020,
+                                     .hour=10,
+                                     .minute=20,
+                                     .second=30,
+                                     .dayOfWeek=espchrono::DateTime::DayOfWeek::Saturday
+                                    } << "2020-10-10T10:20:30.000"s;
 
-        QTest::addRow("unday") << espchrono::DateTime{
-                                    10_d/October/2020,
-                                    .hour=10,
-                                    .minute=20,
-                                    .second=30,
-                                    .dayOfWeek=espchrono::DateTime::DayOfWeek::Sunday
-                                   } << "2020-10-10T10:20:30.000"s;
+        QTest::addRow("sunday") << espchrono::DateTime{
+                                     .date = 10_d/October/2020,
+                                     .hour=10,
+                                     .minute=20,
+                                     .second=30,
+                                     .dayOfWeek=espchrono::DateTime::DayOfWeek::Sunday
+                                    } << "2020-10-10T10:20:30.000"s;
 
         QTest::addRow("leading_zeros") << espchrono::DateTime{
-                                           1_d/January/2020,
+                                           .date = 1_d/January/2020,
                                            .hour=1,
                                            .minute=2,
                                            .second=3,
@@ -101,29 +101,21 @@ private slots:
         QTest::addColumn<espchrono::LocalDateTime>("dateTime");
         QTest::addColumn<std::string>("expected");
 
-        QTest::addRow("leading_zeros") << espchrono::LocalDateTime{
-                                           espchrono::DateTime {
-                                               1_d/January/2020,
-                                               .hour = 1,
-                                               .minute = 2,
-                                               .second = 3,
-                                               .dayOfWeek = espchrono::DateTime::DayOfWeek::Monday,
-                                           },
-                                           .timezone = testTimeZone,
-                                           .dst = false
-                                          } << "2020-01-01T01:02:03.000 +01:00"s;
+        constexpr const auto makeLocalDateTime = [](auto date, auto hour, auto minute, auto second, auto dayOfWeek, auto timezone, auto dst){
+            espchrono::LocalDateTime localDateTime;
+            localDateTime.date = date;
+            localDateTime.hour = hour;
+            localDateTime.minute = minute;
+            localDateTime.second = second;
+            localDateTime.dayOfWeek = dayOfWeek;
+            localDateTime.timezone = timezone;
+            localDateTime.dst = dst;
+            return localDateTime;
+        };
 
-        QTest::addRow("leading_zeros_dst") << espchrono::LocalDateTime{
-                                               espchrono::DateTime {
-                                                   1_d/January/2020,
-                                                   .hour = 1,
-                                                   .minute = 2,
-                                                   .second = 3,
-                                                   .dayOfWeek = espchrono::DateTime::DayOfWeek::Monday,
-                                               },
-                                               .timezone = testTimeZone,
-                                               .dst = true
-                                              } << "2020-01-01T01:02:03.000 +02:00"s;
+        QTest::addRow("leading_zeros") << makeLocalDateTime(1_d/January/2020, 1, 2, 3, espchrono::DateTime::DayOfWeek::Monday, testTimeZone, false) << "2020-01-01T01:02:03.000 +01:00"s;
+
+        QTest::addRow("leading_zeros_dst") << makeLocalDateTime(1_d/January/2020, 1, 2, 3, espchrono::DateTime::DayOfWeek::Monday, testTimeZone, true) << "2020-01-01T01:02:03.000 +02:00"s;
     }
 
     void test_dateTimeLocalToString()
@@ -140,21 +132,21 @@ private slots:
         QTest::addColumn<espchrono::DateTime>("expected");
 
         QTest::addRow("random") << espchrono::utc_clock::time_point{123456s} << espchrono::DateTime{
-                                    2_d/January/1970,
+                                    .date = 2_d/January/1970,
                                     .hour=10, .minute=17, .second=36,
                                     .dayOfWeek=espchrono::DateTime::DayOfWeek::Friday
                                    };
 
         QTest::addRow("leap_year") << espchrono::utc_clock::time_point{1582934400s}
                                    << espchrono::DateTime{
-                                       29_d/February/2020,
+                                       .date = 29_d/February/2020,
                                        .hour=0, .minute=0, .second=0,
                                        .dayOfWeek=espchrono::DateTime::DayOfWeek::Saturday
                                       };
 
         QTest::addRow("normal_year") << espchrono::utc_clock::time_point{1614556800s}
                                      << espchrono::DateTime{
-                                         1_d/March/2021,
+                                         .date = 1_d/March/2021,
                                          .hour=0, .minute=0, .second=0,
                                          .dayOfWeek=espchrono::DateTime::DayOfWeek::Monday
                                         };
@@ -173,26 +165,22 @@ private slots:
         QTest::addColumn<espchrono::local_clock::time_point>("time_point");
         QTest::addColumn<espchrono::LocalDateTime>("expected");
 
+        constexpr const auto makeLocalDateTime = [](auto date, auto hour, auto minute, auto second, auto dayOfWeek, auto timezone, auto dst){
+            espchrono::LocalDateTime localDateTime;
+            localDateTime.date = date;
+            localDateTime.hour = hour;
+            localDateTime.minute = minute;
+            localDateTime.second = second;
+            localDateTime.dayOfWeek = dayOfWeek;
+            localDateTime.timezone = timezone;
+            localDateTime.dst = dst;
+            return localDateTime;
+        };
+
         QTest::addRow("no_dst") << espchrono::local_clock::time_point(123456s, testTimeZone, false)
-                                << espchrono::LocalDateTime{
-                                    espchrono::DateTime{
-                                     2_d/January/1970,
-                                     .hour=10, .minute=17, .second=36,
-                                     .dayOfWeek=espchrono::DateTime::DayOfWeek::Friday
-                                    },
-                                    .timezone = testTimeZone,
-                                    .dst = false
-                                   };
+                                << makeLocalDateTime(2_d/January/1970, 10, 17, 36, espchrono::DateTime::DayOfWeek::Friday, testTimeZone, false);
         QTest::addRow("with_dst") << espchrono::local_clock::time_point(123456s, testTimeZone, true)
-                                  << espchrono::LocalDateTime{
-                                      espchrono::DateTime{
-                                       2_d/January/1970,
-                                       .hour=10, .minute=17, .second=36,
-                                       .dayOfWeek=espchrono::DateTime::DayOfWeek::Friday
-                                      },
-                                      .timezone = testTimeZone,
-                                      .dst = true
-                                     };
+                                  << makeLocalDateTime(2_d/January/1970, 10, 17, 36, espchrono::DateTime::DayOfWeek::Friday, testTimeZone, true);
     }
 
     void test_toDateTimeLocal()
