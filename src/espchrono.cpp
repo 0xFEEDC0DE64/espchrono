@@ -79,6 +79,12 @@ bool isAustralianDaylightTime(local_clock::time_point timeStamp)
     const date::sys_days startOfDst = dateTime.date.year()/October/Sunday[0];
     const date::sys_days endOfDst = dateTime.date.year()/April/Sunday[0];
 
+    if (dateTime.date == startOfDst)
+        return dateTime.hour > 2;
+
+    if (dateTime.date == endOfDst)
+        return dateTime.hour < 3;
+
     return dateTime.date < endOfDst || dateTime.date > startOfDst;
 }
 } // namespace
