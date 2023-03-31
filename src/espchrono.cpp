@@ -133,7 +133,6 @@ local_clock::time_point utcToLocal(utc_clock::time_point ts)
 }
 #endif
 
-namespace {
 DateTime toDateTime(std::chrono::microseconds ts)
 {
     auto _time = ts.count();
@@ -189,7 +188,6 @@ DateTime toDateTime(std::chrono::microseconds ts)
     dateTime.dayOfWeek = dayOfWeek;
     return dateTime;
 }
-}
 
 DateTime toDateTime(utc_clock::time_point ts)
 {
@@ -202,6 +200,19 @@ LocalDateTime toDateTime(local_clock::time_point ts)
     dateTime.dst = ts.dst;
     dateTime.timezone = ts.timezone;
     return dateTime;
+}
+
+utc_clock::time_point fromDateTime(DateTime ts)
+{
+    const sys_days date = ts.date;
+    return utc_clock::time_point {
+        date.time_since_epoch()
+            + std::chrono::hours{ts.hour}
+            + std::chrono::minutes{ts.minute}
+            + std::chrono::seconds{ts.second}
+            + std::chrono::milliseconds{ts.millisecond}
+            + std::chrono::microseconds{ts.microsecond}
+        };
 }
 
 std::expected<DateTime, std::string> parseDateTime(std::string_view str)

@@ -191,8 +191,10 @@ utc_clock::time_point localToUtc(local_clock::time_point local);
 local_clock::time_point utcToLocal(utc_clock::time_point ts);
 #endif
 
+DateTime toDateTime(std::chrono::microseconds ts);
 DateTime toDateTime(utc_clock::time_point ts);
 LocalDateTime toDateTime(local_clock::time_point ts);
+utc_clock::time_point fromDateTime(DateTime ts);
 
 std::expected<DateTime, std::string> parseDateTime(std::string_view str);
 
