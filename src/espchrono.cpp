@@ -262,7 +262,7 @@ std::expected<std::chrono::seconds, std::string> parseDaypoint(std::string_view 
 
 std::string toString(const DateTime &dateTime)
 {
-    return fmt::format("{:04}-{:02}-{:02}T{:02}:{:02}:{:02}.{:03}",
+    return fmt::format("{:04}-{:02}-{:02}T{:02}:{:02}:{:02}.{:03}Z",
                        int{dateTime.date.year()}, unsigned{dateTime.date.month()}, unsigned{dateTime.date.day()},
                        dateTime.hour, dateTime.minute, dateTime.second, dateTime.millisecond);
 }
@@ -271,7 +271,7 @@ std::string toString(const LocalDateTime &dateTime)
 {
     date::hh_mm_ss helper{dateTime.timezone.offset + hours32{dateTime.dst ? 1 : 0}};
 
-    return fmt::format("{:04}-{:02}-{:02}T{:02}:{:02}:{:02}.{:03} {}{:02}:{:02}",
+    return fmt::format("{:04}-{:02}-{:02}T{:02}:{:02}:{:02}.{:03}{}{:02}:{:02}",
                        int{dateTime.date.year()}, unsigned{dateTime.date.month()}, unsigned{dateTime.date.day()},
                        dateTime.hour, dateTime.minute, dateTime.second, dateTime.millisecond,
                        helper.is_negative() ? "-" : "+", uint8_t(helper.hours().count()), uint8_t(helper.minutes().count()));
