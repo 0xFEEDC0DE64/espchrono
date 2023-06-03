@@ -204,6 +204,10 @@ std::string toString(const DateTime &dateTime);
 
 std::string toString(const LocalDateTime &dateTime);
 
+std::string toISOString(const DateTime &dateTime);
+
+std::string toISOString(const LocalDateTime &dateTime);
+
 std::string toDaypointString(std::chrono::seconds seconds);
 
 std::chrono::microseconds ago(millis_clock::time_point a);

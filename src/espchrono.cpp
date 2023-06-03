@@ -277,6 +277,24 @@ std::string toString(const LocalDateTime &dateTime)
                        helper.is_negative() ? "-" : "+", uint8_t(helper.hours().count()), uint8_t(helper.minutes().count()));
 }
 
+std::string toISOString(const DateTime &dateTime)
+{
+    return fmt::format("{:04}-{:02}-{:02}T{:02}:{:02}:{:02}.{:03}Z",
+                       int{dateTime.date.year()}, unsigned{dateTime.date.month()}, unsigned{dateTime.date.day()},
+                       dateTime.hour, dateTime.minute, dateTime.second, dateTime.millisecond);
+}
+
+std::string toISOString(const LocalDateTime &dateTime)
+{
+    date::hh_mm_ss helper{dateTime.timezone.offset + hours32{dateTime.dst ? 1 : 0}};
+
+    return fmt::format("{:04}-{:02}-{:02}T{:02}:{:02}:{:02}.{:03}{}{:02}:{:02}",
+                       int{dateTime.date.year()}, unsigned{dateTime.date.month()}, unsigned{dateTime.date.day()},
+                       dateTime.hour, dateTime.minute, dateTime.second, dateTime.millisecond,
+                       helper.is_negative() ? "-" : "+", uint8_t(helper.hours().count()), uint8_t(helper.minutes().count()));
+}
+
+
 std::string toDaypointString(std::chrono::seconds seconds)
 {
     date::hh_mm_ss helper(seconds);
